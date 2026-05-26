@@ -66,9 +66,7 @@ func init() {
 // supported.
 //
 // Names are case insensitive.
-func ByName(name string) sign.Scheme {
-	return allSchemeNames[strings.ToLower(name)]
-}
+func ByName(name string) sign.Scheme { _ = "STUB: not implemented"; return *new(sign.Scheme) }
 
 // All returns all signature schemes supported.
-func All() []sign.Scheme { a := allSchemes; return a[:] }
+func All() []sign.Scheme { _ = "STUB: not implemented"; return nil }

@@ -19,9 +19,7 @@ type Binary struct {
 	Output   attr
 }
 
-func (b Binary) Accept(visitor ExprVisitor) {
-	visitor.visitBinary(b)
-}
+func (b Binary) Accept(visitor ExprVisitor) { _ = "STUB: not implemented"; return }
 
 // Unary is used for Not
 type Unary struct {
@@ -29,24 +27,18 @@ type Unary struct {
 	Right    Expr
 }
 
-func (u Unary) Accept(visitor ExprVisitor) {
-	visitor.visitUnary(u)
-}
+func (u Unary) Accept(visitor ExprVisitor) { _ = "STUB: not implemented"; return }
 
 // Grouping is used for LeftParen, RightParen
 type Grouping struct {
 	Expr Expr
 }
 
-func (g Grouping) Accept(visitor ExprVisitor) {
-	visitor.visitGrouping(g)
-}
+func (g Grouping) Accept(visitor ExprVisitor) { _ = "STUB: not implemented"; return }
 
 type Literal struct {
 	Key   attr
 	Value attrValue
 }
 
-func (l Literal) Accept(visitor ExprVisitor) {
-	visitor.visitLiteral(l)
-}
+func (l Literal) Accept(visitor ExprVisitor) { _ = "STUB: not implemented"; return }

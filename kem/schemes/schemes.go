@@ -67,9 +67,7 @@ func init() {
 // supported.
 //
 // Names are case insensitive.
-func ByName(name string) kem.Scheme {
-	return allSchemeNames[strings.ToLower(name)]
-}
+func ByName(name string) kem.Scheme { _ = "STUB: not implemented"; return *new(kem.Scheme) }
 
 // All returns all KEM schemes supported.
-func All() []kem.Scheme { a := allSchemes; return a[:] }
+func All() []kem.Scheme { _ = "STUB: not implemented"; return nil }

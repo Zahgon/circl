@@ -1,7 +1,6 @@
 package ed25519
 
 import (
-	"crypto/rand"
 	"encoding/asn1"
 
 	"github.com/cloudflare/circl/sign"
@@ -10,23 +9,25 @@ import (
 var sch sign.Scheme = &scheme{}
 
 // Scheme returns a signature interface.
-func Scheme() sign.Scheme { return sch }
+func Scheme() sign.Scheme { _ = "STUB: not implemented"; return *new(sign.Scheme) }
 
 type scheme struct{}
 
-func (*scheme) Name() string          { return "Ed25519" }
-func (*scheme) PublicKeySize() int    { return PublicKeySize }
-func (*scheme) PrivateKeySize() int   { return PrivateKeySize }
-func (*scheme) SignatureSize() int    { return SignatureSize }
-func (*scheme) SeedSize() int         { return SeedSize }
-func (*scheme) TLSIdentifier() uint   { return 0x0807 }
-func (*scheme) SupportsContext() bool { return false }
+func (*scheme) Name() string          { _ = "STUB: not implemented"; return "" }
+func (*scheme) PublicKeySize() int    { _ = "STUB: not implemented"; return 0 }
+func (*scheme) PrivateKeySize() int   { _ = "STUB: not implemented"; return 0 }
+func (*scheme) SignatureSize() int    { _ = "STUB: not implemented"; return 0 }
+func (*scheme) SeedSize() int         { _ = "STUB: not implemented"; return 0 }
+func (*scheme) TLSIdentifier() uint   { _ = "STUB: not implemented"; return 0 }
+func (*scheme) SupportsContext() bool { _ = "STUB: not implemented"; return false }
 func (*scheme) Oid() asn1.ObjectIdentifier {
-	return asn1.ObjectIdentifier{1, 3, 101, 112}
+	_ = "STUB: not implemented"
+	return *new(asn1.ObjectIdentifier)
 }
 
 func (*scheme) GenerateKey() (sign.PublicKey, sign.PrivateKey, error) {
-	return GenerateKey(rand.Reader)
+	_ = "STUB: not implemented"
+	return *new(sign.PublicKey), *new(sign.PrivateKey), nil
 }
 
 func (*scheme) Sign(
@@ -34,14 +35,8 @@ func (*scheme) Sign(
 	message []byte,
 	opts *sign.SignatureOpts,
 ) []byte {
-	priv, ok := sk.(PrivateKey)
-	if !ok {
-		panic(sign.ErrTypeMismatch)
-	}
-	if opts != nil && opts.Context != "" {
-		panic(sign.ErrContextNotSupported)
-	}
-	return Sign(priv, message)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (*scheme) Verify(
@@ -49,39 +44,21 @@ func (*scheme) Verify(
 	message, signature []byte,
 	opts *sign.SignatureOpts,
 ) bool {
-	pub, ok := pk.(PublicKey)
-	if !ok {
-		panic(sign.ErrTypeMismatch)
-	}
-	if opts != nil {
-		if opts.Context != "" {
-			panic(sign.ErrContextNotSupported)
-		}
-	}
-	return Verify(pub, message, signature)
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (*scheme) DeriveKey(seed []byte) (sign.PublicKey, sign.PrivateKey) {
-	privateKey := NewKeyFromSeed(seed)
-	publicKey := make(PublicKey, PublicKeySize)
-	copy(publicKey, privateKey[SeedSize:])
-	return publicKey, privateKey
+	_ = "STUB: not implemented"
+	return *new(sign.PublicKey), *new(sign.PrivateKey)
 }
 
 func (*scheme) UnmarshalBinaryPublicKey(buf []byte) (sign.PublicKey, error) {
-	if len(buf) < PublicKeySize {
-		return nil, sign.ErrPubKeySize
-	}
-	pub := make(PublicKey, PublicKeySize)
-	copy(pub, buf[:PublicKeySize])
-	return pub, nil
+	_ = "STUB: not implemented"
+	return *new(sign.PublicKey), nil
 }
 
 func (*scheme) UnmarshalBinaryPrivateKey(buf []byte) (sign.PrivateKey, error) {
-	if len(buf) < PrivateKeySize {
-		return nil, sign.ErrPrivKeySize
-	}
-	priv := make(PrivateKey, PrivateKeySize)
-	copy(priv, buf[:PrivateKeySize])
-	return priv, nil
+	_ = "STUB: not implemented"
+	return *new(sign.PrivateKey), nil
 }

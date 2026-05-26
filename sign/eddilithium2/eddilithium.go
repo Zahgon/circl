@@ -3,11 +3,8 @@ package eddilithium2
 
 import (
 	"crypto"
-	cryptoRand "crypto/rand"
-	"errors"
 	"io"
 
-	"github.com/cloudflare/circl/internal/sha3"
 	"github.com/cloudflare/circl/sign"
 	"github.com/cloudflare/circl/sign/dilithium/mode2"
 	"github.com/cloudflare/circl/sign/ed25519"
@@ -42,168 +39,79 @@ type PrivateKey struct {
 // GenerateKey generates a public/private key pair using entropy from rand.
 // If rand is nil, crypto/rand.Reader will be used.
 func GenerateKey(rand io.Reader) (*PublicKey, *PrivateKey, error) {
-	var seed [SeedSize]byte
-	if rand == nil {
-		rand = cryptoRand.Reader
-	}
-	_, err := io.ReadFull(rand, seed[:])
-	if err != nil {
-		return nil, nil, err
-	}
-
-	pk, sk := NewKeyFromSeed(&seed)
-	return pk, sk, nil
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }
 
 // NewKeyFromSeed derives a public/private key pair using the given seed.
 func NewKeyFromSeed(seed *[SeedSize]byte) (*PublicKey, *PrivateKey) {
-	var seed1 [32]byte
-	var seed2 [ed25519.SeedSize]byte
-
-	// Internally, Ed25519 and Dilithium hash the seeds they are passed again
-	// with different hash functions, so it would be safe to use exactly the
-	// same seed for Ed25519 and Dilithium here.  However, in general, when
-	// combining any two signature schemes it might not be the case that this
-	// is safe.  Setting a bad example here isn't worth the tiny gain in
-	// performance.
-
-	h := sha3.NewShake256()
-	_, _ = h.Write(seed[:])
-	_, _ = h.Read(seed1[:])
-	_, _ = h.Read(seed2[:])
-	dpk, dsk := mode2.NewKeyFromSeed(&seed1)
-	esk := ed25519.NewKeyFromSeed(seed2[:])
-
-	return &PublicKey{esk.Public().(ed25519.PublicKey), *dpk}, &PrivateKey{esk, *dsk}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Internally, Ed25519 and Dilithium hash the seeds they are passed again
+// with different hash functions, so it would be safe to use exactly the
+// same seed for Ed25519 and Dilithium here.  However, in general, when
+// combining any two signature schemes it might not be the case that this
+// is safe.  Setting a bad example here isn't worth the tiny gain in
+// performance.
 
 // SignTo signs the given message and writes the signature into signature.
 // It will panic if signature is not of length at least SignatureSize.
-func SignTo(sk *PrivateKey, msg []byte, signature []byte) {
-	mode2.SignTo(
-		&sk.d,
-		msg,
-		signature[:mode2.SignatureSize],
-	)
-	esig := ed25519.Sign(
-		sk.e,
-		msg,
-	)
-	copy(signature[mode2.SignatureSize:], esig[:])
-}
+func SignTo(sk *PrivateKey, msg []byte, signature []byte) { _ = "STUB: not implemented"; return }
 
 // Verify checks whether the given signature by pk on msg is valid.
 func Verify(pk *PublicKey, msg []byte, signature []byte) bool {
-	if !mode2.Verify(
-		&pk.d,
-		msg,
-		signature[:mode2.SignatureSize],
-	) {
-		return false
-	}
-	if !ed25519.Verify(
-		pk.e,
-		msg,
-		signature[mode2.SignatureSize:],
-	) {
-		return false
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 // Unpack unpacks pk to the public key encoded in buf.
-func (pk *PublicKey) Unpack(buf *[PublicKeySize]byte) {
-	var tmp [mode2.PublicKeySize]byte
-	copy(tmp[:], buf[:mode2.PublicKeySize])
-	pk.d.Unpack(&tmp)
-	pk.e = make([]byte, ed25519.PublicKeySize)
-	copy(pk.e, buf[mode2.PublicKeySize:])
-}
+func (pk *PublicKey) Unpack(buf *[PublicKeySize]byte) { _ = "STUB: not implemented"; return }
 
 // Unpack sets sk to the private key encoded in buf.
-func (sk *PrivateKey) Unpack(buf *[PrivateKeySize]byte) {
-	var tmp [mode2.PrivateKeySize]byte
-	copy(tmp[:], buf[:mode2.PrivateKeySize])
-	sk.d.Unpack(&tmp)
-	sk.e = ed25519.NewKeyFromSeed(buf[mode2.PrivateKeySize:])
-}
+func (sk *PrivateKey) Unpack(buf *[PrivateKeySize]byte) { _ = "STUB: not implemented"; return }
 
 // Pack packs the public key into buf.
-func (pk *PublicKey) Pack(buf *[PublicKeySize]byte) {
-	var tmp [mode2.PublicKeySize]byte
-	pk.d.Pack(&tmp)
-	copy(buf[:mode2.PublicKeySize], tmp[:])
-	copy(buf[mode2.PublicKeySize:], pk.e)
-}
+func (pk *PublicKey) Pack(buf *[PublicKeySize]byte) { _ = "STUB: not implemented"; return }
 
 // Pack packs the private key into buf.
-func (sk *PrivateKey) Pack(buf *[PrivateKeySize]byte) {
-	var tmp [mode2.PrivateKeySize]byte
-	sk.d.Pack(&tmp)
-	copy(buf[:mode2.PrivateKeySize], tmp[:])
-	copy(buf[mode2.PrivateKeySize:], sk.e.Seed())
-}
+func (sk *PrivateKey) Pack(buf *[PrivateKeySize]byte) { _ = "STUB: not implemented"; return }
 
 // Bytes packs the public key.
-func (pk *PublicKey) Bytes() []byte {
-	return append(pk.d.Bytes(), pk.e...)
-}
+func (pk *PublicKey) Bytes() []byte { _ = "STUB: not implemented"; return nil }
 
 // Bytes packs the private key.
-func (sk *PrivateKey) Bytes() []byte {
-	return append(sk.d.Bytes(), sk.e.Seed()...)
-}
+func (sk *PrivateKey) Bytes() []byte { _ = "STUB: not implemented"; return nil }
 
 // MarshalBinary packs the public key.
 func (pk *PublicKey) MarshalBinary() ([]byte, error) {
-	return pk.Bytes(), nil
+	_ = "STUB: not implemented"
+	return nil,
+
+		// MarshalBinary packs the private key.
+		nil
 }
 
-// MarshalBinary packs the private key.
 func (sk *PrivateKey) MarshalBinary() ([]byte, error) {
-	return sk.Bytes(), nil
+	_ = "STUB: not implemented"
+	return nil,
+
+		// UnmarshalBinary the public key from data.
+		nil
 }
 
-// UnmarshalBinary the public key from data.
-func (pk *PublicKey) UnmarshalBinary(data []byte) error {
-	if len(data) != PublicKeySize {
-		return errors.New("packed public key must be of eddilithium2.PublicKeySize bytes")
-	}
-	var buf [PublicKeySize]byte
-	copy(buf[:], data)
-	pk.Unpack(&buf)
-	return nil
-}
+func (pk *PublicKey) UnmarshalBinary(data []byte) error { _ = "STUB: not implemented"; return nil }
 
 // UnmarshalBinary unpacks the private key from data.
-func (sk *PrivateKey) UnmarshalBinary(data []byte) error {
-	if len(data) != PrivateKeySize {
-		return errors.New("packed private key must be of eddilithium2.PrivateKeySize bytes")
-	}
-	var buf [PrivateKeySize]byte
-	copy(buf[:], data)
-	sk.Unpack(&buf)
-	return nil
-}
+func (sk *PrivateKey) UnmarshalBinary(data []byte) error { _ = "STUB: not implemented"; return nil }
 
-func (sk *PrivateKey) Scheme() sign.Scheme { return sch }
-func (pk *PublicKey) Scheme() sign.Scheme  { return sch }
+func (sk *PrivateKey) Scheme() sign.Scheme { _ = "STUB: not implemented"; return *new(sign.Scheme) }
+func (pk *PublicKey) Scheme() sign.Scheme  { _ = "STUB: not implemented"; return *new(sign.Scheme) }
 
-func (sk *PrivateKey) Equal(other crypto.PrivateKey) bool {
-	castOther, ok := other.(*PrivateKey)
-	if !ok {
-		return false
-	}
-	return castOther.e.Equal(sk.e) && castOther.d.Equal(&sk.d)
-}
+func (sk *PrivateKey) Equal(other crypto.PrivateKey) bool { _ = "STUB: not implemented"; return false }
 
-func (pk *PublicKey) Equal(other crypto.PublicKey) bool {
-	castOther, ok := other.(*PublicKey)
-	if !ok {
-		return false
-	}
-	return castOther.e.Equal(pk.e) && castOther.d.Equal(&pk.d)
-}
+func (pk *PublicKey) Equal(other crypto.PublicKey) bool { _ = "STUB: not implemented"; return false }
 
 // Sign signs the given message.
 //
@@ -217,14 +125,8 @@ func (pk *PublicKey) Equal(other crypto.PublicKey) bool {
 func (sk *PrivateKey) Sign(
 	rand io.Reader, msg []byte, opts crypto.SignerOpts,
 ) (signature []byte, err error) {
-	var sig [SignatureSize]byte
-
-	if opts.HashFunc() != crypto.Hash(0) {
-		return nil, errors.New("eddilithium2: cannot sign hashed message")
-	}
-
-	SignTo(sk, msg, sig[:])
-	return sig[:], nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Public computes the public key corresponding to this private key.
@@ -232,8 +134,6 @@ func (sk *PrivateKey) Sign(
 // Returns a *PublicKey.  The type crypto.PublicKey is used to make
 // PrivateKey implement the crypto.Signer interface.
 func (sk *PrivateKey) Public() crypto.PublicKey {
-	return &PublicKey{
-		sk.e.Public().(ed25519.PublicKey),
-		*sk.d.Public().(*mode2.PublicKey),
-	}
+	_ = "STUB: not implemented"
+	return *new(crypto.PublicKey)
 }

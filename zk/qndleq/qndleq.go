@@ -23,12 +23,9 @@
 package qndleq
 
 import (
-	"crypto/rand"
 	"errors"
 	"io"
 	"math/big"
-
-	"github.com/cloudflare/circl/internal/sha3"
 )
 
 type Proof struct {
@@ -39,24 +36,13 @@ type Proof struct {
 // SampleQn returns an element of Qn (the subgroup of squares in (Z/nZ)*).
 // SampleQn will return error for any error returned by crypto/rand.Int.
 func SampleQn(random io.Reader, N *big.Int) (*big.Int, error) {
-	one := big.NewInt(1)
-	gcd := new(big.Int)
-	x := new(big.Int)
-
-	for {
-		y, err := rand.Int(random, N)
-		if err != nil {
-			return nil, err
-		}
-		// x is a square by construction.
-		x.Mul(y, y).Mod(x, N)
-		gcd.GCD(nil, nil, x, N)
-		// now check whether h is coprime to N.
-		if gcd.Cmp(one) == 0 {
-			return x, nil
-		}
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// x is a square by construction.
+
+// now check whether h is coprime to N.
 
 // Prove creates a DLEQ Proof that attests that the pairs (g,gx)
 // and (h,hx) have the same discrete logarithm equal to x.
@@ -70,159 +56,33 @@ func SampleQn(random io.Reader, N *big.Int) (*big.Int, error) {
 // Note: this function does not run in constant time because it uses
 // big.Int arithmetic.
 func Prove(random io.Reader, x, g, gx, h, hx, N *big.Int, secParam uint) (*Proof, error) {
-	err := checkBounds(N, g, gx, h, hx)
-	if err != nil {
-		return nil, err
-	}
-
-	rSizeBits := uint(N.BitLen()) + 2*secParam
-	rSizeBytes := (rSizeBits + 7) / 8
-	rBytes := make([]byte, rSizeBytes)
-
-	ONE := big.NewInt(1)
-	const NUM_TRIES = 10
-	var r, gP, hP, gc, hc big.Int
-	for i := 0; i < NUM_TRIES; i++ {
-		_, err := io.ReadFull(random, rBytes)
-		if err != nil {
-			return nil, err
-		}
-
-		r.SetBytes(rBytes)
-		gP.Exp(g, &r, N)
-		hP.Exp(h, &r, N)
-
-		c, err := doChallenge(g, gx, h, hx, &gP, &hP, N, secParam)
-		if err != nil {
-			return nil, err
-		}
-
-		// Challenge must not be congruent to zero.
-		//   c != 0 mod m, where m = (p-1)(q-1)/4, and N = p*q.
-		// Check this by doing an Exp because m is unknown.
-		//
-		// This is valid assuming N is the product of two safe prime numbers.
-		// In the verification equation, c multiplies the witness.
-		// When c is zero, it removes the witness allowing to trivially
-		// pass the verification check.
-		gc.Exp(g, c, N)
-		hc.Exp(h, c, N)
-		if gc.Cmp(ONE) != 0 && hc.Cmp(ONE) != 0 {
-			z := new(big.Int).Mul(c, x)
-			z.Add(z, &r)
-			return &Proof{z, c, secParam}, nil
-		}
-	}
-
-	return nil, ErrProve
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Challenge must not be congruent to zero.
+//   c != 0 mod m, where m = (p-1)(q-1)/4, and N = p*q.
+// Check this by doing an Exp because m is unknown.
+//
+// This is valid assuming N is the product of two safe prime numbers.
+// In the verification equation, c multiplies the witness.
+// When c is zero, it removes the witness allowing to trivially
+// pass the verification check.
 
 // Verify checks whether x = Log_g(g^x) = Log_h(h^x).
-func (p Proof) Verify(g, gx, h, hx, N *big.Int) bool {
-	err := checkBounds(N, g, gx, h, hx)
-	if err != nil {
-		return false
-	}
+func (p Proof) Verify(g, gx, h, hx, N *big.Int) bool { _ = "STUB: not implemented"; return false }
 
-	// Check c != 0 (mod m), where m = (p-1)(q-1)/4,
-	// by doing an Exp as m is unknown.
-	ONE := big.NewInt(1)
-	gc := new(big.Int).Exp(g, p.c, N)
-	hc := new(big.Int).Exp(h, p.c, N)
-	if gc.Cmp(ONE) == 0 || hc.Cmp(ONE) == 0 {
-		return false
-	}
-
-	gPNum := new(big.Int).Exp(g, p.z, N)
-	gPDen := new(big.Int).Exp(gx, p.c, N)
-	ok := gPDen.ModInverse(gPDen, N)
-	if ok == nil {
-		return false
-	}
-	gP := gPNum.Mul(gPNum, gPDen)
-	gP.Mod(gP, N)
-
-	hPNum := new(big.Int).Exp(h, p.z, N)
-	hPDen := new(big.Int).Exp(hx, p.c, N)
-	ok = hPDen.ModInverse(hPDen, N)
-	if ok == nil {
-		return false
-	}
-	hP := hPNum.Mul(hPNum, hPDen)
-	hP.Mod(hP, N)
-
-	c, err := doChallenge(g, gx, h, hx, gP, hP, N, p.secParam)
-	if err != nil {
-		return false
-	}
-
-	return p.c.Cmp(c) == 0
-}
+// Check c != 0 (mod m), where m = (p-1)(q-1)/4,
+// by doing an Exp as m is unknown.
 
 func doChallenge(g, gx, h, hx, gP, hP, N *big.Int, secParam uint) (*big.Int, error) {
-	if secParam < 128 {
-		return nil, ErrSecParam
-	}
-
-	modulusLenBytes := (N.BitLen() + 7) / 8
-	nBytes := make([]byte, modulusLenBytes)
-	cByteLen := (secParam + 7) / 8
-	cBytes := make([]byte, cByteLen)
-
-	H := sha3.NewShake256()
-	_, err := H.Write(g.FillBytes(nBytes))
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = H.Write(h.FillBytes(nBytes))
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = H.Write(gx.FillBytes(nBytes))
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = H.Write(hx.FillBytes(nBytes))
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = H.Write(gP.FillBytes(nBytes))
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = H.Write(hP.FillBytes(nBytes))
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = H.Read(cBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	return new(big.Int).SetBytes(cBytes), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // checkBounds returns nil if 0 < x[i] < N for all 0 <= i < len(x);
 // otherwise, returns ErrBounds.
-func checkBounds(N *big.Int, x ...*big.Int) error {
-	if N.Sign() <= 0 {
-		return ErrBounds
-	}
-
-	for _, xi := range x {
-		if !(0 < xi.Sign() && xi.Cmp(N) < 0) {
-			return ErrBounds
-		}
-	}
-
-	return nil
-}
+func checkBounds(N *big.Int, x ...*big.Int) error { _ = "STUB: not implemented"; return nil }
 
 var (
 	// ErrSecParam is returned when the security parameter is less than 128.

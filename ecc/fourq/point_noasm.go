@@ -3,6 +3,6 @@
 
 package fourq
 
-func (P *pointR1) double()           { doubleGeneric(P) }
-func (P *pointR1) add(Q *pointR2)    { addGeneric(P, Q) }
-func (P *pointR1) mixAdd(Q *pointR3) { mixAddGeneric(P, Q) }
+func (P *pointR1) double()           { _ = "STUB: not implemented"; return }
+func (P *pointR1) add(Q *pointR2)    { _ = "STUB: not implemented"; return }
+func (P *pointR1) mixAdd(Q *pointR3) { _ = "STUB: not implemented"; return }

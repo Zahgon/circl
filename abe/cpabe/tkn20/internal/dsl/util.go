@@ -1,15 +1,7 @@
 package dsl
 
-func isDigit(c uint8) bool {
-	return c >= '0' && c <= '9'
-}
+func isDigit(c uint8) bool { _ = "STUB: not implemented"; return false }
 
-func isAlpha(c uint8) bool {
-	return (c >= 'a' && c <= 'z') ||
-		(c >= 'A' && c <= 'Z') ||
-		c == '_'
-}
+func isAlpha(c uint8) bool { _ = "STUB: not implemented"; return false }
 
-func isAlphaNumeric(c uint8) bool {
-	return isAlpha(c) || isDigit(c)
-}
+func isAlphaNumeric(c uint8) bool { _ = "STUB: not implemented"; return false }

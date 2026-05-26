@@ -3,10 +3,6 @@
 
 package common
 
-import (
-	"golang.org/x/sys/cpu"
-)
-
 // ZetasAVX2 contains all ζ used in NTT (like the Zetas array), but also
 // the values int16(zeta * 62209) for each zeta, which is used in
 // Montgomery reduction.  There is some duplication and reordering as
@@ -183,30 +179,10 @@ var ZetasAVX2 = [...]int16{
 }
 
 // Sets p to a + b.  Does not normalize coefficients.
-func (p *Poly) Add(a, b *Poly) {
-	if cpu.X86.HasAVX2 {
-		addAVX2(
-			(*[N]int16)(p),
-			(*[N]int16)(a),
-			(*[N]int16)(b),
-		)
-	} else {
-		p.addGeneric(a, b)
-	}
-}
+func (p *Poly) Add(a, b *Poly) { _ = "STUB: not implemented"; return }
 
 // Sets p to a - b.  Does not normalize coefficients.
-func (p *Poly) Sub(a, b *Poly) {
-	if cpu.X86.HasAVX2 {
-		subAVX2(
-			(*[N]int16)(p),
-			(*[N]int16)(a),
-			(*[N]int16)(b),
-		)
-	} else {
-		p.subGeneric(a, b)
-	}
-}
+func (p *Poly) Sub(a, b *Poly) { _ = "STUB: not implemented"; return }
 
 // Executes an in-place forward "NTT" on p.
 //
@@ -216,13 +192,7 @@ func (p *Poly) Sub(a, b *Poly) {
 // if the input is in regular form, then the result is also in regular form.
 // The order of coefficients will be "tangled". These can be put back into
 // their proper order by calling Detangle().
-func (p *Poly) NTT() {
-	if cpu.X86.HasAVX2 {
-		nttAVX2((*[N]int16)(p))
-	} else {
-		p.nttGeneric()
-	}
-}
+func (p *Poly) NTT() { _ = "STUB: not implemented"; return }
 
 // Executes an in-place inverse "NTT" on p and multiply by the Montgomery
 // factor R.
@@ -232,13 +202,7 @@ func (p *Poly) NTT() {
 // coefficients are in absolute value ≤q.  If the input is in Montgomery
 // form, then the result is in Montgomery form and so (by linearity)
 // if the input is in regular form, then the result is also in regular form.
-func (p *Poly) InvNTT() {
-	if cpu.X86.HasAVX2 {
-		invNttAVX2((*[N]int16)(p))
-	} else {
-		p.invNTTGeneric()
-	}
-}
+func (p *Poly) InvNTT() { _ = "STUB: not implemented"; return }
 
 // Sets p to the "pointwise" multiplication of a and b.
 //
@@ -249,54 +213,24 @@ func (p *Poly) InvNTT() {
 //
 // Requires a and b to be in "tangled" order, see Tangle().  p will be in
 // tangled order as well.
-func (p *Poly) MulHat(a, b *Poly) {
-	if cpu.X86.HasAVX2 {
-		mulHatAVX2(
-			(*[N]int16)(p),
-			(*[N]int16)(a),
-			(*[N]int16)(b),
-		)
-	} else {
-		p.mulHatGeneric(a, b)
-	}
-}
+func (p *Poly) MulHat(a, b *Poly) { _ = "STUB: not implemented"; return }
 
 // Puts p into the right form to be used with (among others) InvNTT().
-func (p *Poly) Tangle() {
-	if cpu.X86.HasAVX2 {
-		tangleAVX2((*[N]int16)(p))
-	}
+func (p *Poly) Tangle() { _ = "STUB: not implemented"; return }
 
-	// When AVX2 is not available, we use the standard order.
-}
+// When AVX2 is not available, we use the standard order.
 
 // Puts p back into standard form.
-func (p *Poly) Detangle() {
-	if cpu.X86.HasAVX2 {
-		detangleAVX2((*[N]int16)(p))
-	}
+func (p *Poly) Detangle() { _ = "STUB: not implemented"; return }
 
-	// When AVX2 is not available, we use the standard order.
-}
+// When AVX2 is not available, we use the standard order.
 
 // Almost normalizes coefficients.
 //
 // Ensures each coefficient is in {0, …, q}.
-func (p *Poly) BarrettReduce() {
-	if cpu.X86.HasAVX2 {
-		barrettReduceAVX2((*[N]int16)(p))
-	} else {
-		p.barrettReduceGeneric()
-	}
-}
+func (p *Poly) BarrettReduce() { _ = "STUB: not implemented"; return }
 
 // Normalizes coefficients.
 //
 // Ensures each coefficient is in {0, …, q-1}.
-func (p *Poly) Normalize() {
-	if cpu.X86.HasAVX2 {
-		normalizeAVX2((*[N]int16)(p))
-	} else {
-		p.normalizeGeneric()
-	}
-}
+func (p *Poly) Normalize() { _ = "STUB: not implemented"; return }

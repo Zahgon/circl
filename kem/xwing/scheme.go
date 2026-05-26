@@ -1,140 +1,70 @@
 package xwing
 
 import (
-	"bytes"
-	cryptoRand "crypto/rand"
-	"crypto/subtle"
-
 	"github.com/cloudflare/circl/kem"
-	"github.com/cloudflare/circl/kem/mlkem/mlkem768"
 )
 
 // This file contains the boilerplate code to connect X-Wing to the
 // generic KEM API.
 
 // Returns the generic KEM interface for  X-Wing PQ/T hybrid KEM.
-func Scheme() kem.Scheme { return scheme{} }
+func Scheme() kem.Scheme { _ = "STUB: not implemented"; return *new(kem.Scheme) }
 
 type scheme struct{}
 
-func (scheme) Name() string               { return "X-Wing" }
-func (scheme) PublicKeySize() int         { return PublicKeySize }
-func (scheme) PrivateKeySize() int        { return PrivateKeySize }
-func (scheme) SeedSize() int              { return SeedSize }
-func (scheme) EncapsulationSeedSize() int { return EncapsulationSeedSize }
-func (scheme) SharedKeySize() int         { return SharedKeySize }
-func (scheme) CiphertextSize() int        { return CiphertextSize }
-func (*PrivateKey) Scheme() kem.Scheme    { return scheme{} }
-func (*PublicKey) Scheme() kem.Scheme     { return scheme{} }
+func (scheme) Name() string               { _ = "STUB: not implemented"; return "" }
+func (scheme) PublicKeySize() int         { _ = "STUB: not implemented"; return 0 }
+func (scheme) PrivateKeySize() int        { _ = "STUB: not implemented"; return 0 }
+func (scheme) SeedSize() int              { _ = "STUB: not implemented"; return 0 }
+func (scheme) EncapsulationSeedSize() int { _ = "STUB: not implemented"; return 0 }
+func (scheme) SharedKeySize() int         { _ = "STUB: not implemented"; return 0 }
+func (scheme) CiphertextSize() int        { _ = "STUB: not implemented"; return 0 }
+func (*PrivateKey) Scheme() kem.Scheme    { _ = "STUB: not implemented"; return *new(kem.Scheme) }
+func (*PublicKey) Scheme() kem.Scheme     { _ = "STUB: not implemented"; return *new(kem.Scheme) }
 
 func (sch scheme) Encapsulate(pk kem.PublicKey) (ct, ss []byte, err error) {
-	var seed [EncapsulationSeedSize]byte
-	_, err = cryptoRand.Read(seed[:])
-	if err != nil {
-		return
-	}
-	return sch.EncapsulateDeterministically(pk, seed[:])
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }
 
 func (scheme) EncapsulateDeterministically(
 	pk kem.PublicKey, seed []byte,
 ) ([]byte, []byte, error) {
-	if len(seed) != EncapsulationSeedSize {
-		return nil, nil, kem.ErrSeedSize
-	}
-	pub, ok := pk.(*PublicKey)
-	if !ok {
-		return nil, nil, kem.ErrTypeMismatch
-	}
-	var (
-		ct [CiphertextSize]byte
-		ss [SharedKeySize]byte
-	)
-	pub.EncapsulateTo(ct[:], ss[:], seed)
-	return ct[:], ss[:], nil
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }
 
 func (scheme) UnmarshalBinaryPublicKey(buf []byte) (kem.PublicKey, error) {
-	var pk PublicKey
-	if len(buf) != PublicKeySize {
-		return nil, kem.ErrPubKeySize
-	}
-
-	if err := pk.Unpack(buf); err != nil {
-		return nil, err
-	}
-	return &pk, nil
+	_ = "STUB: not implemented"
+	return *new(kem.PublicKey), nil
 }
 
 func (scheme) UnmarshalBinaryPrivateKey(buf []byte) (kem.PrivateKey, error) {
-	var sk PrivateKey
-	if len(buf) != PrivateKeySize {
-		return nil, kem.ErrPrivKeySize
-	}
-
-	sk.Unpack(buf)
-	return &sk, nil
+	_ = "STUB: not implemented"
+	return *new(kem.PrivateKey), nil
 }
 
-func (sk *PrivateKey) MarshalBinary() ([]byte, error) {
-	var ret [PrivateKeySize]byte
-	sk.Pack(ret[:])
-	return ret[:], nil
-}
+func (sk *PrivateKey) MarshalBinary() ([]byte, error) { _ = "STUB: not implemented"; return nil, nil }
 
-func (sk *PrivateKey) Equal(other kem.PrivateKey) bool {
-	oth, ok := other.(*PrivateKey)
-	if !ok {
-		return false
-	}
-	return sk.m.Equal(&oth.m) &&
-		subtle.ConstantTimeCompare(oth.x[:], sk.x[:]) == 1
-}
+func (sk *PrivateKey) Equal(other kem.PrivateKey) bool { _ = "STUB: not implemented"; return false }
 
-func (sk *PrivateKey) Public() kem.PublicKey {
-	var pk PublicKey
-	pk.m = *(sk.m.Public().(*mlkem768.PublicKey))
-	pk.x = sk.xpk
-	return &pk
-}
+func (sk *PrivateKey) Public() kem.PublicKey { _ = "STUB: not implemented"; return *new(kem.PublicKey) }
 
-func (pk *PublicKey) Equal(other kem.PublicKey) bool {
-	oth, ok := other.(*PublicKey)
-	if !ok {
-		return false
-	}
-	return pk.m.Equal(&oth.m) && bytes.Equal(pk.x[:], oth.x[:])
-}
+func (pk *PublicKey) Equal(other kem.PublicKey) bool { _ = "STUB: not implemented"; return false }
 
-func (pk *PublicKey) MarshalBinary() ([]byte, error) {
-	var ret [PublicKeySize]byte
-	pk.Pack(ret[:])
-	return ret[:], nil
-}
+func (pk *PublicKey) MarshalBinary() ([]byte, error) { _ = "STUB: not implemented"; return nil, nil }
 
 func (scheme) DeriveKeyPair(seed []byte) (kem.PublicKey, kem.PrivateKey) {
-	sk, pk := DeriveKeyPair(seed)
-	return pk, sk
+	_ = "STUB: not implemented"
+	return *new(kem.PublicKey), *new(kem.PrivateKey)
 }
 
 func (scheme) GenerateKeyPair() (kem.PublicKey, kem.PrivateKey, error) {
-	sk, pk, err := GenerateKeyPair(nil)
-	return pk, sk, err
+	_ = "STUB: not implemented"
+	return *new(kem.PublicKey), *new(kem.PrivateKey), nil
 }
 
 func (scheme) Decapsulate(sk kem.PrivateKey, ct []byte) ([]byte, error) {
-	if len(ct) != CiphertextSize {
-		return nil, kem.ErrCiphertextSize
-	}
-
-	var ss [SharedKeySize]byte
-
-	priv, ok := sk.(*PrivateKey)
-	if !ok {
-		return nil, kem.ErrTypeMismatch
-	}
-
-	priv.DecapsulateTo(ss[:], ct[:])
-
-	return ss[:], nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

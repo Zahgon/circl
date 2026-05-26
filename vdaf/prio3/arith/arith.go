@@ -73,9 +73,13 @@ type Fp[E Elt] interface {
 }
 
 // NewVec returns a vector of length n with all elements set to zero.
-func NewVec[V Vec[V, E], E Elt](n uint) V { return make(V, n) }
+func NewVec[V Vec[V, E], E Elt](n uint) V {
+	_ = "STUB: not implemented"
 
-// Vec lists the funtionality of a vector of field elements.
+	// Vec lists the funtionality of a vector of field elements.
+	return *new(V)
+}
+
 type Vec[Vec ~[]E, E Elt] interface {
 	~[]E
 	// Size returns the number of bytes to encode the vector.
@@ -116,9 +120,14 @@ type Vec[Vec ~[]E, E Elt] interface {
 
 // NewPoly returns a polynomial of the given degree with all coefficients set
 // to zero.
-func NewPoly[P Poly[P, E], E Elt](degree uint) P { return make(P, degree+1) }
+func NewPoly[P Poly[P, E], E Elt](degree uint) P {
+	_ = "STUB: not implemented"
+	return *
 
-// Poly lists the funtionality of polynomials with coefficients in a field.
+	// Poly lists the funtionality of polynomials with coefficients in a field.
+	new(P)
+}
+
 type Poly[Poly ~[]E, E Elt] interface {
 	~[]E
 	// AddAssing calculates z = z + x.

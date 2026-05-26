@@ -10,12 +10,11 @@ import (
 
 type curve struct{ elliptic.Curve }
 
-func P384() Curve { return curve{elliptic.P384()} }
+func P384() Curve { _ = "STUB: not implemented"; return *new(Curve) }
 
 // CombinedMult calculates P=mG+nQ, where G is the generator and Q=(x,y,z).
 // The scalars m and n are integers in big-endian form. Non-constant time.
 func (c curve) CombinedMult(xQ, yQ *big.Int, m, n []byte) (xP, yP *big.Int) {
-	x1, y1 := c.ScalarBaseMult(m)
-	x2, y2 := c.ScalarMult(xQ, yQ, n)
-	return c.Add(x1, y1, x2, y2)
+	_ = "STUB: not implemented"
+	return nil, nil
 }

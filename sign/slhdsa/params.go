@@ -1,16 +1,7 @@
 package slhdsa
 
 import (
-	"crypto"
-	"crypto/hmac"
-	"crypto/sha256"
-	"crypto/sha512"
-	"encoding/binary"
-	"hash"
 	"io"
-	"strings"
-
-	"github.com/cloudflare/circl/internal/sha3"
 )
 
 // [ID] identifies the supported parameter sets of SLH-DSA.
@@ -42,33 +33,14 @@ const (
 // Example:
 //
 //	IDByName("SLH-DSA-SHAKE-256s") // returns (SHAKESmall256, nil)
-func IDByName(name string) (ID, error) {
-	v := strings.ToLower(name)
-	for i := range supportedParams {
-		if strings.ToLower(supportedParams[i].name) == v {
-			return supportedParams[i].ID, nil
-		}
-	}
-
-	return ID(0), ErrParam
-}
+func IDByName(name string) (ID, error) { _ = "STUB: not implemented"; return *new(ID), nil }
 
 // IsValid returns true if the parameter set is supported.
-func (id ID) IsValid() bool { return 0 < id && id < _MaxParams }
+func (id ID) IsValid() bool { _ = "STUB: not implemented"; return false }
 
-func (id ID) String() string {
-	if !id.IsValid() {
-		return ErrParam.Error()
-	}
-	return supportedParams[id-1].name
-}
+func (id ID) String() string { _ = "STUB: not implemented"; return "" }
 
-func (id ID) params() *params {
-	if !id.IsValid() {
-		panic(ErrParam)
-	}
-	return &supportedParams[id-1]
-}
+func (id ID) params() *params { _ = "STUB: not implemented"; return nil }
 
 // params contains all the relevant constants of a parameter set.
 type params struct {
@@ -101,82 +73,12 @@ var supportedParams = [_MaxParams - 1]params{
 }
 
 // See FIPS-205, Section 11.1 and Section 11.2.
-func (p *params) PRFMsg(out, skPrf, optRand, msg []byte) {
-	if p.isSHA2 {
-		var h crypto.Hash
-		if p.n == 16 {
-			h = crypto.SHA256
-		} else {
-			h = crypto.SHA512
-		}
-
-		mac := hmac.New(h.New, skPrf)
-		concat(mac, optRand, msg)
-		mac.Sum(out[:0])
-	} else {
-		state := sha3.NewShake256()
-		concat(&state, skPrf, optRand, msg)
-		_, _ = state.Read(out)
-	}
-}
+func (p *params) PRFMsg(out, skPrf, optRand, msg []byte) { _ = "STUB: not implemented"; return }
 
 // See FIPS-205, Section 11.1 and Section 11.2.
-func (p *params) HashMsg(out, r, msg []byte, pk *PublicKey) {
-	if p.isSHA2 {
-		var hLen uint32
-		var state hash.Hash
-		if p.n == 16 {
-			hLen = sha256.Size
-			state = sha256.New()
-		} else {
-			hLen = sha512.Size
-			state = sha512.New()
-		}
-
-		mgfSeed := make([]byte, 2*p.n+hLen+4)
-		c := cursor(mgfSeed)
-		copy(c.Next(p.n), r)
-		copy(c.Next(p.n), pk.seed)
-		sumInter := c.Next(hLen)
-
-		concat(state, r, pk.seed, pk.root, msg)
-		state.Sum(sumInter[:0])
-		p.mgf1(out, mgfSeed, p.m)
-	} else {
-		state := sha3.NewShake256()
-		concat(&state, r, pk.seed, pk.root, msg)
-		_, _ = state.Read(out)
-	}
-}
+func (p *params) HashMsg(out, r, msg []byte, pk *PublicKey) { _ = "STUB: not implemented"; return }
 
 // MGF1 described in Appendix B.2.1 of RFC 8017.
-func (p *params) mgf1(out, mgfSeed []byte, maskLen uint32) {
-	var hLen uint32
-	var hashFn func(out, in []byte)
-	if p.n == 16 {
-		hLen = sha256.Size
-		hashFn = sha256sum
-	} else {
-		hLen = sha512.Size
-		hashFn = sha512sum
-	}
+func (p *params) mgf1(out, mgfSeed []byte, maskLen uint32) { _ = "STUB: not implemented"; return }
 
-	offset := uint32(0)
-	end := (maskLen + hLen - 1) / hLen
-	counterBytes := mgfSeed[len(mgfSeed)-4:]
-
-	for counter := range end {
-		binary.BigEndian.PutUint32(counterBytes, counter)
-		hashFn(out[offset:], mgfSeed)
-		offset += hLen
-	}
-}
-
-func concat(w io.Writer, list ...[]byte) {
-	for _, li := range list {
-		_, err := w.Write(li)
-		if err != nil {
-			panic(ErrWriting)
-		}
-	}
-}
+func concat(w io.Writer, list ...[]byte) { _ = "STUB: not implemented"; return }

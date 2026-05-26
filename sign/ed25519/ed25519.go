@@ -36,15 +36,8 @@
 package ed25519
 
 import (
-	"bytes"
 	"crypto"
-	cryptoRand "crypto/rand"
-	"crypto/sha512"
-	"crypto/subtle"
-	"errors"
-	"fmt"
 	"io"
-	"strconv"
 
 	"github.com/cloudflare/circl/sign"
 )
@@ -95,48 +88,35 @@ const (
 type PrivateKey []byte
 
 // Equal reports whether priv and x have the same value.
-func (priv PrivateKey) Equal(x crypto.PrivateKey) bool {
-	xx, ok := x.(PrivateKey)
-	return ok && subtle.ConstantTimeCompare(priv, xx) == 1
-}
+func (priv PrivateKey) Equal(x crypto.PrivateKey) bool { _ = "STUB: not implemented"; return false }
 
 // Public returns the PublicKey corresponding to priv.
 func (priv PrivateKey) Public() crypto.PublicKey {
-	publicKey := make(PublicKey, PublicKeySize)
-	copy(publicKey, priv[SeedSize:])
-	return publicKey
+	_ = "STUB: not implemented"
+	return *new(crypto.PublicKey)
 }
 
 // Seed returns the private key seed corresponding to priv. It is provided for
 // interoperability with RFC 8032. RFC 8032's private keys correspond to seeds
 // in this package.
-func (priv PrivateKey) Seed() []byte {
-	seed := make([]byte, SeedSize)
-	copy(seed, priv[:SeedSize])
-	return seed
-}
+func (priv PrivateKey) Seed() []byte { _ = "STUB: not implemented"; return nil }
 
-func (priv PrivateKey) Scheme() sign.Scheme { return sch }
+func (priv PrivateKey) Scheme() sign.Scheme { _ = "STUB: not implemented"; return *new(sign.Scheme) }
 
-func (pub PublicKey) Scheme() sign.Scheme { return sch }
+func (pub PublicKey) Scheme() sign.Scheme { _ = "STUB: not implemented"; return *new(sign.Scheme) }
 
 func (priv PrivateKey) MarshalBinary() (data []byte, err error) {
-	privateKey := make(PrivateKey, PrivateKeySize)
-	copy(privateKey, priv)
-	return privateKey, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (pub PublicKey) MarshalBinary() (data []byte, err error) {
-	publicKey := make(PublicKey, PublicKeySize)
-	copy(publicKey, pub)
-	return publicKey, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Equal reports whether pub and x have the same value.
-func (pub PublicKey) Equal(x crypto.PublicKey) bool {
-	xx, ok := x.(PublicKey)
-	return ok && bytes.Equal(pub, xx)
-}
+func (pub PublicKey) Equal(x crypto.PublicKey) bool { _ = "STUB: not implemented"; return false }
 
 // Sign creates a signature of a message with priv key.
 // This function is compatible with crypto.ed25519 and also supports the
@@ -154,137 +134,47 @@ func (priv PrivateKey) Sign(
 	message []byte,
 	opts crypto.SignerOpts,
 ) (signature []byte, err error) {
-	var ctx string
-	var scheme SchemeID
-	if o, ok := opts.(SignerOptions); ok {
-		ctx = o.Context
-		scheme = o.Scheme
-	}
-
-	switch true {
-	case scheme == ED25519 && opts.HashFunc() == crypto.Hash(0):
-		return Sign(priv, message), nil
-	case scheme == ED25519Ph && opts.HashFunc() == crypto.SHA512:
-		return SignPh(priv, message, ctx), nil
-	case scheme == ED25519Ctx && opts.HashFunc() == crypto.Hash(0) && len(ctx) > 0:
-		return SignWithCtx(priv, message, ctx), nil
-	default:
-		return nil, errors.New("ed25519: bad hash algorithm")
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // GenerateKey generates a public/private key pair using entropy from rand.
 // If rand is nil, crypto/rand.Reader will be used.
 func GenerateKey(rand io.Reader) (PublicKey, PrivateKey, error) {
-	if rand == nil {
-		rand = cryptoRand.Reader
-	}
-
-	seed := make([]byte, SeedSize)
-	if _, err := io.ReadFull(rand, seed); err != nil {
-		return nil, nil, err
-	}
-
-	privateKey := NewKeyFromSeed(seed)
-	publicKey := make(PublicKey, PublicKeySize)
-	copy(publicKey, privateKey[SeedSize:])
-
-	return publicKey, privateKey, nil
+	_ = "STUB: not implemented"
+	return *new(PublicKey), *new(PrivateKey), nil
 }
 
 // NewKeyFromSeed calculates a private key from a seed. It will panic if
 // len(seed) is not SeedSize. This function is provided for interoperability
 // with RFC 8032. RFC 8032's private keys correspond to seeds in this
 // package.
-func NewKeyFromSeed(seed []byte) PrivateKey {
-	privateKey := make(PrivateKey, PrivateKeySize)
-	newKeyFromSeed(privateKey, seed)
-	return privateKey
-}
+func NewKeyFromSeed(seed []byte) PrivateKey { _ = "STUB: not implemented"; return *new(PrivateKey) }
 
-func newKeyFromSeed(privateKey, seed []byte) {
-	if l := len(seed); l != SeedSize {
-		panic("ed25519: bad seed length: " + strconv.Itoa(l))
-	}
-	var P pointR1
-	k := sha512.Sum512(seed)
-	clamp(k[:])
-	reduceModOrder(k[:paramB], false)
-	P.fixedMult(k[:paramB])
-	copy(privateKey[:SeedSize], seed)
-	_ = P.ToBytes(privateKey[SeedSize:])
-}
+func newKeyFromSeed(privateKey, seed []byte) { _ = "STUB: not implemented"; return }
 
 func signAll(signature []byte, privateKey PrivateKey, message, ctx []byte, preHash bool) {
-	if l := len(privateKey); l != PrivateKeySize {
-		panic("ed25519: bad private key length: " + strconv.Itoa(l))
-	}
-
-	H := sha512.New()
-	var PHM []byte
-
-	if preHash {
-		_, _ = H.Write(message)
-		PHM = H.Sum(nil)
-		H.Reset()
-	} else {
-		PHM = message
-	}
-
-	// 1.  Hash the 32-byte private key using SHA-512.
-	_, _ = H.Write(privateKey[:SeedSize])
-	h := H.Sum(nil)
-	clamp(h[:])
-	prefix, s := h[paramB:], h[:paramB]
-
-	// 2.  Compute SHA-512(dom2(F, C) || prefix || PH(M))
-	H.Reset()
-
-	writeDom(H, ctx, preHash)
-
-	_, _ = H.Write(prefix)
-	_, _ = H.Write(PHM)
-	r := H.Sum(nil)
-	reduceModOrder(r[:], true)
-
-	// 3.  Compute the point [r]B.
-	var P pointR1
-	P.fixedMult(r[:paramB])
-	R := (&[paramB]byte{})[:]
-	if err := P.ToBytes(R); err != nil {
-		panic(err)
-	}
-
-	// 4.  Compute SHA512(dom2(F, C) || R || A || PH(M)).
-	H.Reset()
-
-	writeDom(H, ctx, preHash)
-
-	_, _ = H.Write(R)
-	_, _ = H.Write(privateKey[SeedSize:])
-	_, _ = H.Write(PHM)
-	hRAM := H.Sum(nil)
-
-	reduceModOrder(hRAM[:], true)
-
-	// 5.  Compute S = (r + k * s) mod order.
-	S := (&[paramB]byte{})[:]
-	calculateS(S, r[:paramB], hRAM[:paramB], s)
-
-	// 6.  The signature is the concatenation of R and S.
-	copy(signature[:paramB], R[:])
-	copy(signature[paramB:], S[:])
+	_ = "STUB: not implemented"
+	return
 }
+
+// 1.  Hash the 32-byte private key using SHA-512.
+
+// 2.  Compute SHA-512(dom2(F, C) || prefix || PH(M))
+
+// 3.  Compute the point [r]B.
+
+// 4.  Compute SHA512(dom2(F, C) || R || A || PH(M)).
+
+// 5.  Compute S = (r + k * s) mod order.
+
+// 6.  The signature is the concatenation of R and S.
 
 // Sign signs the message with privateKey and returns a signature.
 // This function supports the signature variant defined in RFC-8032: Ed25519,
 // also known as the pure version of EdDSA.
 // It will panic if len(privateKey) is not PrivateKeySize.
-func Sign(privateKey PrivateKey, message []byte) []byte {
-	signature := make([]byte, SignatureSize)
-	signAll(signature, privateKey, message, []byte(""), false)
-	return signature
-}
+func Sign(privateKey PrivateKey, message []byte) []byte { _ = "STUB: not implemented"; return nil }
 
 // SignPh creates a signature of a message with private key and context.
 // This function supports the signature variant defined in RFC-8032: Ed25519ph,
@@ -294,13 +184,8 @@ func Sign(privateKey PrivateKey, message []byte) []byte {
 // Context could be passed to this function, which length should be no more than
 // ContextMaxSize=255. It can be empty.
 func SignPh(privateKey PrivateKey, message []byte, ctx string) []byte {
-	if len(ctx) > ContextMaxSize {
-		panic(fmt.Errorf("ed25519: bad context length: %v", len(ctx)))
-	}
-
-	signature := make([]byte, SignatureSize)
-	signAll(signature, privateKey, message, []byte(ctx), true)
-	return signature
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // SignWithCtx creates a signature of a message with private key and context.
@@ -310,54 +195,13 @@ func SignPh(privateKey PrivateKey, message []byte, ctx string) []byte {
 // Context must be passed to this function, which length should be no more than
 // ContextMaxSize=255 and cannot be empty.
 func SignWithCtx(privateKey PrivateKey, message []byte, ctx string) []byte {
-	if len(ctx) == 0 || len(ctx) > ContextMaxSize {
-		panic(fmt.Errorf("ed25519: bad context length: %v > %v", len(ctx), ContextMaxSize))
-	}
-
-	signature := make([]byte, SignatureSize)
-	signAll(signature, privateKey, message, []byte(ctx), false)
-	return signature
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func verify(public PublicKey, message, signature, ctx []byte, preHash bool) bool {
-	if len(public) != PublicKeySize ||
-		len(signature) != SignatureSize ||
-		!isLessThanOrder(signature[paramB:]) {
-		return false
-	}
-
-	var P pointR1
-	if ok := P.FromBytes(public); !ok {
-		return false
-	}
-
-	H := sha512.New()
-	var PHM []byte
-
-	if preHash {
-		_, _ = H.Write(message)
-		PHM = H.Sum(nil)
-		H.Reset()
-	} else {
-		PHM = message
-	}
-
-	R := signature[:paramB]
-
-	writeDom(H, ctx, preHash)
-
-	_, _ = H.Write(R)
-	_, _ = H.Write(public)
-	_, _ = H.Write(PHM)
-	hRAM := H.Sum(nil)
-	reduceModOrder(hRAM[:], true)
-
-	var Q pointR1
-	encR := (&[paramB]byte{})[:]
-	P.neg()
-	Q.doubleMult(&P, signature[paramB:], hRAM[:paramB])
-	_ = Q.ToBytes(encR)
-	return bytes.Equal(R, encR)
+	_ = "STUB: not implemented"
+	return false
 }
 
 // VerifyAny returns true if the signature is valid. Failure cases are invalid
@@ -370,23 +214,8 @@ func verify(public PublicKey, message, signature, ctx []byte, preHash bool) bool
 // This can be achieved by passing crypto.SHA512 as the value for opts.
 // Use a SignerOptions struct to pass a context string for signing.
 func VerifyAny(public PublicKey, message, signature []byte, opts crypto.SignerOpts) bool {
-	var ctx string
-	var scheme SchemeID
-	if o, ok := opts.(SignerOptions); ok {
-		ctx = o.Context
-		scheme = o.Scheme
-	}
-
-	switch true {
-	case scheme == ED25519 && opts.HashFunc() == crypto.Hash(0):
-		return Verify(public, message, signature)
-	case scheme == ED25519Ph && opts.HashFunc() == crypto.SHA512:
-		return VerifyPh(public, message, signature, ctx)
-	case scheme == ED25519Ctx && opts.HashFunc() == crypto.Hash(0) && len(ctx) > 0:
-		return VerifyWithCtx(public, message, signature, ctx)
-	default:
-		return false
-	}
+	_ = "STUB: not implemented"
+	return false
 }
 
 // Verify returns true if the signature is valid. Failure cases are invalid
@@ -394,7 +223,8 @@ func VerifyAny(public PublicKey, message, signature []byte, opts crypto.SignerOp
 // This function supports the signature variant defined in RFC-8032: Ed25519,
 // also known as the pure version of EdDSA.
 func Verify(public PublicKey, message, signature []byte) bool {
-	return verify(public, message, signature, []byte(""), false)
+	_ = "STUB: not implemented"
+	return false
 }
 
 // VerifyPh returns true if the signature is valid. Failure cases are invalid
@@ -404,7 +234,8 @@ func Verify(public PublicKey, message, signature []byte) bool {
 // Context could be passed to this function, which length should be no more than
 // 255. It can be empty.
 func VerifyPh(public PublicKey, message, signature []byte, ctx string) bool {
-	return verify(public, message, signature, []byte(ctx), true)
+	_ = "STUB: not implemented"
+	return false
 }
 
 // VerifyWithCtx returns true if the signature is valid. Failure cases are invalid
@@ -414,40 +245,13 @@ func VerifyPh(public PublicKey, message, signature []byte, ctx string) bool {
 // meaning it does not handle prehashed messages. Non-empty context string must be
 // provided, and must not be more than 255 of length.
 func VerifyWithCtx(public PublicKey, message, signature []byte, ctx string) bool {
-	if len(ctx) == 0 || len(ctx) > ContextMaxSize {
-		return false
-	}
-
-	return verify(public, message, signature, []byte(ctx), false)
+	_ = "STUB: not implemented"
+	return false
 }
 
-func clamp(k []byte) {
-	k[0] &= 248
-	k[paramB-1] = (k[paramB-1] & 127) | 64
-}
+func clamp(k []byte) { _ = "STUB: not implemented"; return }
 
 // isLessThanOrder returns true if 0 <= x < order.
-func isLessThanOrder(x []byte) bool {
-	i := len(order) - 1
-	for i > 0 && x[i] == order[i] {
-		i--
-	}
-	return x[i] < order[i]
-}
+func isLessThanOrder(x []byte) bool { _ = "STUB: not implemented"; return false }
 
-func writeDom(h io.Writer, ctx []byte, preHash bool) {
-	dom2 := "SigEd25519 no Ed25519 collisions"
-
-	if len(ctx) > 0 {
-		_, _ = h.Write([]byte(dom2))
-		if preHash {
-			_, _ = h.Write([]byte{byte(0x01), byte(len(ctx))})
-		} else {
-			_, _ = h.Write([]byte{byte(0x00), byte(len(ctx))})
-		}
-		_, _ = h.Write(ctx)
-	} else if preHash {
-		_, _ = h.Write([]byte(dom2))
-		_, _ = h.Write([]byte{0x01, 0x00})
-	}
-}
+func writeDom(h io.Writer, ctx []byte, preHash bool) { _ = "STUB: not implemented"; return }

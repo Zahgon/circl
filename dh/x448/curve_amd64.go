@@ -12,10 +12,10 @@ var hasBmi2Adx = cpu.X86.HasBMI2 && cpu.X86.HasADX
 
 var _ = hasBmi2Adx
 
-func double(x, z *fp.Elt)             { doubleAmd64(x, z) }
-func diffAdd(w *[5]fp.Elt, b uint)    { diffAddAmd64(w, b) }
-func ladderStep(w *[5]fp.Elt, b uint) { ladderStepAmd64(w, b) }
-func mulA24(z, x *fp.Elt)             { mulA24Amd64(z, x) }
+func double(x, z *fp.Elt)             { _ = "STUB: not implemented"; return }
+func diffAdd(w *[5]fp.Elt, b uint)    { _ = "STUB: not implemented"; return }
+func ladderStep(w *[5]fp.Elt, b uint) { _ = "STUB: not implemented"; return }
+func mulA24(z, x *fp.Elt)             { _ = "STUB: not implemented"; return }
 
 //go:noescape
 func doubleAmd64(x, z *fp.Elt)

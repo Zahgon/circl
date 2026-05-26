@@ -4,9 +4,6 @@ import (
 	"crypto"
 	"crypto/rsa"
 	"io"
-
-	"github.com/cloudflare/circl/tss/rsa/internal"
-	pss2 "github.com/cloudflare/circl/tss/rsa/internal/pss"
 )
 
 type Padder interface {
@@ -16,7 +13,8 @@ type Padder interface {
 type PKCS1v15Padder struct{}
 
 func (PKCS1v15Padder) Pad(pub *rsa.PublicKey, hash crypto.Hash, hashed []byte) ([]byte, error) {
-	return internal.PadPKCS1v15(pub, hash, hashed)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // PSSPadder is a padder for RSA Probabilistic Padding Scheme (RSA-PSS) used in TLS 1.3
@@ -34,5 +32,6 @@ type PSSPadder struct {
 }
 
 func (pss *PSSPadder) Pad(pub *rsa.PublicKey, hash crypto.Hash, hashed []byte) ([]byte, error) {
-	return pss2.PadPSS(pss.Rand, pub, hash, hashed, pss.Opts)
+	_ = "STUB: not implemented"
+	return nil, nil
 }

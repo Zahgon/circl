@@ -37,8 +37,6 @@ package internal
 import (
 	"crypto"
 	"crypto/rsa"
-	"errors"
-	"fmt"
 )
 
 var hashPrefixes = map[crypto.Hash][]byte{
@@ -68,43 +66,15 @@ var hashPrefixes = map[crypto.Hash][]byte{
 }
 
 func PadPKCS1v15(pub *rsa.PublicKey, hash crypto.Hash, hashed []byte) ([]byte, error) {
-	hashLen, prefix, err := pkcs1v15HashInfo(hash, len(hashed))
-	if err != nil {
-		return nil, err
-	}
-
-	tLen := len(prefix) + hashLen
-	k := pub.Size()
-	if k < tLen+11 {
-		return nil, fmt.Errorf("message too long")
-	}
-
-	// EM = 0x00 || 0x01 || PS || 0x00 || T
-	em := make([]byte, k)
-	em[1] = 1
-	for i := 2; i < k-tLen-1; i++ {
-		em[i] = 0xff
-	}
-	copy(em[k-tLen:k-hashLen], prefix)
-	copy(em[k-hashLen:k], hashed)
-
-	return em, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
+// EM = 0x00 || 0x01 || PS || 0x00 || T
+
 func pkcs1v15HashInfo(hash crypto.Hash, inLen int) (hashLen int, prefix []byte, err error) {
+	_ = "STUB: not implemented"
 	// Special case: crypto.Hash(0) is used to indicate that the data is
 	// signed directly.
-	if hash == 0 {
-		return inLen, nil, nil
-	}
-
-	hashLen = hash.Size()
-	if inLen != hashLen {
-		return 0, nil, errors.New("threshold_internal: crypto/rsa: input must be hashed message")
-	}
-	prefix, ok := hashPrefixes[hash]
-	if !ok {
-		return 0, nil, errors.New("threshold_internal: crypto/rsa: unsupported hash function")
-	}
-	return
+	return 0, nil, nil
 }

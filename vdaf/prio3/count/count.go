@@ -2,9 +2,6 @@
 package count
 
 import (
-	"crypto/subtle"
-
-	"github.com/cloudflare/circl/vdaf/prio3/arith"
 	"github.com/cloudflare/circl/vdaf/prio3/arith/fp64"
 	"github.com/cloudflare/circl/vdaf/prio3/internal/flp"
 	"github.com/cloudflare/circl/vdaf/prio3/internal/prio3"
@@ -33,21 +30,16 @@ type Count struct {
 }
 
 func New(numShares uint8, context []byte) (c *Count, err error) {
-	const countID = 1
-	c = new(Count)
-	c.p, err = prio3.New(newFlpCount(), countID, numShares, context)
-	if err != nil {
-		return nil, err
-	}
-
-	return c, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (c *Count) Params() prio3.Params { return c.p.Params() }
+func (c *Count) Params() prio3.Params { _ = "STUB: not implemented"; return *new(prio3.Params) }
 
 func (c *Count) Shard(measurement bool, nonce *Nonce, rand []byte,
 ) (PublicShare, []InputShare, error) {
-	return c.p.Shard(measurement, nonce, rand)
+	_ = "STUB: not implemented"
+	return *new(PublicShare), nil, nil
 }
 
 func (c *Count) PrepInit(
@@ -57,87 +49,54 @@ func (c *Count) PrepInit(
 	publicShare PublicShare,
 	inputShare InputShare,
 ) (*PrepState, *PrepShare, error) {
-	return c.p.PrepInit(verifyKey, nonce, aggID, publicShare, inputShare)
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }
 
 func (c *Count) PrepSharesToPrep(prepShares []PrepShare) (*PrepMessage, error) {
-	return c.p.PrepSharesToPrep(prepShares)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *Count) PrepNext(state *PrepState, msg *PrepMessage) (*OutShare, error) {
-	return c.p.PrepNext(state, msg)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (c *Count) AggregateInit() AggShare { return c.p.AggregateInit() }
+func (c *Count) AggregateInit() AggShare { _ = "STUB: not implemented"; return *new(AggShare) }
 
 func (c *Count) AggregateUpdate(aggShare *AggShare, outShare *OutShare) {
-	c.p.AggregateUpdate(aggShare, outShare)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (c *Count) Unshard(aggShares []AggShare, numMeas uint) (aggregate *uint64, err error) {
-	return c.p.Unshard(aggShares, numMeas)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 type flpCount struct {
 	flp.FLP[flp.GadgetMulFp64, poly, Vec, Fp, *Fp]
 }
 
-func newFlpCount() *flpCount {
-	c := new(flpCount)
-	c.Valid.MeasurementLen = 1
-	c.Valid.JointRandLen = 0
-	c.Valid.OutputLen = 1
-	c.Valid.EvalOutputLen = 1
-	c.Gadget = flp.GadgetMulFp64{}
-	c.NumGadgetCalls = 1
-	c.FLP.Eval = c.Eval
-	return c
-}
+func newFlpCount() *flpCount { _ = "STUB: not implemented"; return nil }
 
 func (c *flpCount) Eval(
 	out Vec, g flp.Gadget[poly, Vec, Fp, *Fp], numCalls uint,
 	meas, jointRand Vec, numShares uint8,
 ) {
-	g.Eval(&out[0], Vec{meas[0], meas[0]})
-	out[0].SubAssign(&meas[0])
+	_ = "STUB: not implemented"
+	return
 }
 
 func (c *flpCount) Encode(measurement bool) (Vec, error) {
-	var one Fp
-	one.SetOne()
-	y, err := one.MarshalBinary()
-	if err != nil {
-		return nil, err
-	}
-
-	var b int
-	if measurement {
-		b = 1
-	}
-
-	var x [fp64.Size]byte
-	subtle.ConstantTimeCopy(b, x[:], y)
-
-	out := arith.NewVec[Vec](1)
-	err = out[0].UnmarshalBinary(x[:])
-	if err != nil {
-		return nil, err
-	}
-
-	return out, nil
+	_ = "STUB: not implemented"
+	return *new(Vec), nil
 }
 
-func (c *flpCount) Truncate(meas Vec) Vec { return meas }
+func (c *flpCount) Truncate(meas Vec) Vec { _ = "STUB: not implemented"; return *new(Vec) }
 
 func (c *flpCount) Decode(output Vec, numMeas uint) (*uint64, error) {
-	if len(output) < int(c.Valid.OutputLen) {
-		return nil, flp.ErrOutputLen
-	}
-
-	n, err := output[0].GetUint64()
-	if err != nil {
-		return nil, err
-	}
-
-	return &n, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

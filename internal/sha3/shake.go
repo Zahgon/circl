@@ -47,73 +47,43 @@ const (
 
 // Clone returns copy of SHAKE context within its current state.
 func (d *State) Clone() ShakeHash {
-	return d.clone()
+	_ = "STUB: not implemented"
+
+	// NewShake128 creates a new SHAKE128 variable-output-length ShakeHash.
+	// Its generic security strength is 128 bits against all attacks if at
+	// least 32 bytes of its output are used.
+	return *new(ShakeHash)
 }
 
-// NewShake128 creates a new SHAKE128 variable-output-length ShakeHash.
-// Its generic security strength is 128 bits against all attacks if at
-// least 32 bytes of its output are used.
-func NewShake128() State {
-	return State{rate: rate128, dsbyte: dsbyteShake}
-}
+func NewShake128() State { _ = "STUB: not implemented"; return *new(State) }
 
 // NewTurboShake128 creates a new TurboSHAKE128 variable-output-length ShakeHash.
 // Its generic security strength is 128 bits against all attacks if at
 // least 32 bytes of its output are used.
 // D is the domain separation byte and must be between 0x01 and 0x7f inclusive.
-func NewTurboShake128(D byte) State {
-	if D == 0 || D > 0x7f {
-		panic("turboshake: D out of range")
-	}
-	return State{rate: rate128, dsbyte: D, turbo: true}
-}
+func NewTurboShake128(D byte) State { _ = "STUB: not implemented"; return *new(State) }
 
 // NewShake256 creates a new SHAKE256 variable-output-length ShakeHash.
 // Its generic security strength is 256 bits against all attacks if
 // at least 64 bytes of its output are used.
-func NewShake256() State {
-	return State{rate: rate256, dsbyte: dsbyteShake}
-}
+func NewShake256() State { _ = "STUB: not implemented"; return *new(State) }
 
 // NewTurboShake256 creates a new TurboSHAKE256 variable-output-length ShakeHash.
 // Its generic security strength is 256 bits against all attacks if
 // at least 64 bytes of its output are used.
 // D is the domain separation byte and must be between 0x01 and 0x7f inclusive.
-func NewTurboShake256(D byte) State {
-	if D == 0 || D > 0x7f {
-		panic("turboshake: D out of range")
-	}
-	return State{rate: rate256, dsbyte: D, turbo: true}
-}
+func NewTurboShake256(D byte) State { _ = "STUB: not implemented"; return *new(State) }
 
 // ShakeSum128 writes an arbitrary-length digest of data into hash.
-func ShakeSum128(hash, data []byte) {
-	h := NewShake128()
-	_, _ = h.Write(data)
-	_, _ = h.Read(hash)
-}
+func ShakeSum128(hash, data []byte) { _ = "STUB: not implemented"; return }
 
 // ShakeSum256 writes an arbitrary-length digest of data into hash.
-func ShakeSum256(hash, data []byte) {
-	h := NewShake256()
-	_, _ = h.Write(data)
-	_, _ = h.Read(hash)
-}
+func ShakeSum256(hash, data []byte) { _ = "STUB: not implemented"; return }
 
 // TurboShakeSum128 writes an arbitrary-length digest of data into hash.
-func TurboShakeSum128(hash, data []byte, D byte) {
-	h := NewTurboShake128(D)
-	_, _ = h.Write(data)
-	_, _ = h.Read(hash)
-}
+func TurboShakeSum128(hash, data []byte, D byte) { _ = "STUB: not implemented"; return }
 
 // TurboShakeSum256 writes an arbitrary-length digest of data into hash.
-func TurboShakeSum256(hash, data []byte, D byte) {
-	h := NewTurboShake256(D)
-	_, _ = h.Write(data)
-	_, _ = h.Read(hash)
-}
+func TurboShakeSum256(hash, data []byte, D byte) { _ = "STUB: not implemented"; return }
 
-func (d *State) SwitchDS(D byte) {
-	d.dsbyte = D
-}
+func (d *State) SwitchDS(D byte) { _ = "STUB: not implemented"; return }

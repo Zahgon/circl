@@ -6,14 +6,7 @@
 package main
 
 import (
-	"bytes"
 	"encoding/asn1"
-	"fmt"
-	"go/format"
-	"os"
-	"path"
-	"strings"
-	"text/template"
 
 	"github.com/cloudflare/circl/sign/internal/dilithium/params"
 )
@@ -33,48 +26,18 @@ type Mode struct {
 	Oid           asn1.ObjectIdentifier
 }
 
-func (m Mode) Pkg() string {
-	return strings.ToLower(m.Mode())
-}
+func (m Mode) Pkg() string { _ = "STUB: not implemented"; return "" }
 
-func (m Mode) PkgPath() string {
-	if m.NIST() {
-		return path.Join("..", "mldsa", m.Pkg())
-	}
+func (m Mode) PkgPath() string { _ = "STUB: not implemented"; return "" }
 
-	return m.Pkg()
-}
+func (m Mode) Impl() string { _ = "STUB: not implemented"; return "" }
 
-func (m Mode) Impl() string {
-	return "impl" + m.Mode()
-}
+func (m Mode) Mode() string { _ = "STUB: not implemented"; return "" }
 
-func (m Mode) Mode() string {
-	if m.NIST() {
-		return strings.ReplaceAll(m.Name, "-", "")
-	}
-
-	return strings.ReplaceAll(m.Name, "Dilithium", "Mode")
-}
-
-func (m Mode) NIST() bool {
-	return strings.HasPrefix(m.Name, "ML-DSA-")
-}
+func (m Mode) NIST() bool { _ = "STUB: not implemented"; return false }
 
 // https://csrc.nist.gov/Projects/computer-security-objects-register/algorithm-registration
-func (m Mode) OidGo() string {
-	ret := "asn1.ObjectIdentifier{"
-	first := true
-	for _, b := range m.Oid {
-		if first {
-			first = false
-		} else {
-			ret += ", "
-		}
-		ret += fmt.Sprintf("%d", b)
-	}
-	return ret + "}"
-}
+func (m Mode) OidGo() string { _ = "STUB: not implemented"; return "" }
 
 var (
 	Modes = []Mode{
@@ -171,180 +134,21 @@ func main() {
 }
 
 // Generates modeX/internal/params.go from templates/params.templ.go
-func generateParamsFiles() {
-	tl, err := template.ParseFiles("templates/params.templ.go")
-	if err != nil {
-		panic(err)
-	}
+func generateParamsFiles() { _ = "STUB: not implemented"; return }
 
-	for _, mode := range Modes {
-		buf := new(bytes.Buffer)
-		err := tl.Execute(buf, mode)
-		if err != nil {
-			panic(err)
-		}
-
-		// Formating output code
-		code, err := format.Source(buf.Bytes())
-		if err != nil {
-			panic("error formating code")
-		}
-
-		res := string(code)
-		offset := strings.Index(res, TemplateWarning)
-		if offset == -1 {
-			panic("Missing template warning in params.templ.go")
-		}
-		err = os.WriteFile(mode.PkgPath()+"/internal/params.go",
-			[]byte(res[offset:]), 0o644)
-		if err != nil {
-			panic(err)
-		}
-	}
-}
+// Formating output code
 
 // Generates modeX/dilithium.go from templates/pkg.templ.go
-func generateModePackageFiles() {
-	tl, err := template.ParseFiles("templates/pkg.templ.go")
-	if err != nil {
-		panic(err)
-	}
-
-	for _, mode := range Modes {
-		buf := new(bytes.Buffer)
-		err := tl.Execute(buf, mode)
-		if err != nil {
-			panic(err)
-		}
-
-		res, err := format.Source(buf.Bytes())
-		if err != nil {
-			panic("error formating code")
-		}
-
-		offset := strings.Index(string(res), TemplateWarning)
-		if offset == -1 {
-			panic("Missing template warning in pkg.templ.go")
-		}
-		err = os.WriteFile(mode.PkgPath()+"/dilithium.go", res[offset:], 0o644)
-		if err != nil {
-			panic(err)
-		}
-	}
-}
+func generateModePackageFiles() { _ = "STUB: not implemented"; return }
 
 // Generates modeX/dilithium.go from templates/pkg.templ.go
-func generateACVPTest() {
-	tl, err := template.ParseFiles("templates/acvp.templ.go")
-	if err != nil {
-		panic(err)
-	}
-
-	for _, mode := range Modes {
-		if !strings.HasPrefix(mode.Name, "ML-DSA") {
-			continue
-		}
-
-		buf := new(bytes.Buffer)
-		err := tl.Execute(buf, mode)
-		if err != nil {
-			panic(err)
-		}
-
-		res, err := format.Source(buf.Bytes())
-		if err != nil {
-			panic("error formating code")
-		}
-
-		offset := strings.Index(string(res), TemplateWarning)
-		if offset == -1 {
-			panic("Missing template warning in pkg.templ.go")
-		}
-		err = os.WriteFile(mode.PkgPath()+"/acvp_test.go", res[offset:], 0o644)
-		if err != nil {
-			panic(err)
-		}
-	}
-}
+func generateACVPTest() { _ = "STUB: not implemented"; return }
 
 // Copies mode3 source files to other modes
-func generateSourceFiles() {
-	files := make(map[string][]byte)
+func generateSourceFiles() { _ = "STUB: not implemented"; return }
 
-	// Ignore mode specific files.
-	ignored := func(x string) bool {
-		return x == "params.go" || x == "params_test.go" ||
-			strings.HasSuffix(x, ".swp")
-	}
+// Ignore mode specific files.
 
-	fs, err := os.ReadDir("mode3/internal")
-	if err != nil {
-		panic(err)
-	}
+// Read files
 
-	// Read files
-	for _, f := range fs {
-		name := f.Name()
-		if ignored(name) {
-			continue
-		}
-		files[name], err = os.ReadFile(path.Join("mode3/internal", name))
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	// Go over modes
-	for _, mode := range Modes {
-		if mode.Name == "Dilithium3" {
-			continue
-		}
-
-		fs, err = os.ReadDir(path.Join(mode.PkgPath(), "internal"))
-		for _, f := range fs {
-			name := f.Name()
-			fn := path.Join(mode.PkgPath(), "internal", name)
-			if ignored(name) {
-				continue
-			}
-			_, ok := files[name]
-			if !ok {
-				fmt.Printf("Removing superfluous file: %s\n", fn)
-				err = os.Remove(fn)
-				if err != nil {
-					panic(err)
-				}
-			}
-			if f.IsDir() {
-				panic(fmt.Sprintf("%s: is a directory", fn))
-			}
-			if f.Type()&os.ModeSymlink != 0 {
-				fmt.Printf("Removing symlink: %s\n", fn)
-				err = os.Remove(fn)
-				if err != nil {
-					panic(err)
-				}
-			}
-		}
-		for name, expected := range files {
-			fn := path.Join(mode.PkgPath(), "internal", name)
-			expected = []byte(fmt.Sprintf(
-				"%s mode3/internal/%s by gen.go\n\n%s",
-				TemplateWarning,
-				name,
-				string(expected),
-			))
-			got, err := os.ReadFile(fn)
-			if err == nil {
-				if bytes.Equal(got, expected) {
-					continue
-				}
-			}
-			fmt.Printf("Updating %s\n", fn)
-			err = os.WriteFile(fn, expected, 0o644)
-			if err != nil {
-				panic(err)
-			}
-		}
-	}
-}
+// Go over modes

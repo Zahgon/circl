@@ -43,43 +43,20 @@ const (
 	K12D10
 )
 
-func (x ID) New() XOF {
-	switch x {
-	case SHAKE128:
-		s := sha3.NewShake128()
-		return shakeBody{&s}
-	case SHAKE256:
-		s := sha3.NewShake256()
-		return shakeBody{&s}
-	case BLAKE2XB:
-		x, _ := blake2b.NewXOF(blake2b.OutputLengthUnknown, nil)
-		return blake2xb{x}
-	case BLAKE2XS:
-		x, _ := blake2s.NewXOF(blake2s.OutputLengthUnknown, nil)
-		return blake2xs{x}
-	case K12D10:
-		x := k12.NewDraft10([]byte{})
-		return k12d10{&x}
-	default:
-		panic("crypto: requested unavailable XOF function")
-	}
-}
+func (x ID) New() XOF { _ = "STUB: not implemented"; return *new(XOF) }
 
 type shakeBody struct{ sha3.ShakeHash }
 
-func (s shakeBody) Clone() XOF { return shakeBody{s.ShakeHash.Clone()} }
+func (s shakeBody) Clone() XOF { _ = "STUB: not implemented"; return *new(XOF) }
 
 type blake2xb struct{ blake2b.XOF }
 
-func (s blake2xb) Clone() XOF { return blake2xb{s.XOF.Clone()} }
+func (s blake2xb) Clone() XOF { _ = "STUB: not implemented"; return *new(XOF) }
 
 type blake2xs struct{ blake2s.XOF }
 
-func (s blake2xs) Clone() XOF { return blake2xs{s.XOF.Clone()} }
+func (s blake2xs) Clone() XOF { _ = "STUB: not implemented"; return *new(XOF) }
 
 type k12d10 struct{ *k12.State }
 
-func (s k12d10) Clone() XOF {
-	x := s.State.Clone()
-	return k12d10{&x}
-}
+func (s k12d10) Clone() XOF { _ = "STUB: not implemented"; return *new(XOF) }

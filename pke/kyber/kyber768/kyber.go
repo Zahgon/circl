@@ -8,10 +8,8 @@
 package kyber768
 
 import (
-	cryptoRand "crypto/rand"
 	"io"
 
-	"github.com/cloudflare/circl/kem"
 	"github.com/cloudflare/circl/pke/kyber/kyber768/internal"
 )
 
@@ -44,16 +42,8 @@ type PrivateKey internal.PrivateKey
 // GenerateKey generates a public/private key pair using entropy from rand.
 // If rand is nil, crypto/rand.Reader will be used.
 func GenerateKey(rand io.Reader) (*PublicKey, *PrivateKey, error) {
-	var seed [KeySeedSize]byte
-	if rand == nil {
-		rand = cryptoRand.Reader
-	}
-	_, err := io.ReadFull(rand, seed[:])
-	if err != nil {
-		return nil, nil, err
-	}
-	pk, sk := internal.NewKeyFromSeed(seed[:])
-	return (*PublicKey)(pk), (*PrivateKey)(sk), nil
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }
 
 // NewKeyFromSeed derives a public/private key pair using the given seed.
@@ -63,11 +53,8 @@ func GenerateKey(rand io.Reader) (*PublicKey, *PrivateKey, error) {
 //
 // Panics if seed is not of length KeySeedSize.
 func NewKeyFromSeed(seed []byte) (*PublicKey, *PrivateKey) {
-	if len(seed) != KeySeedSize {
-		panic("seed must be of length KeySeedSize")
-	}
-	pk, sk := internal.NewKeyFromSeed(seed)
-	return (*PublicKey)(pk), (*PrivateKey)(sk)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // NewKeyFromSeedMLKEM derives a public/private key pair using the given seed
@@ -75,14 +62,8 @@ func NewKeyFromSeed(seed []byte) (*PublicKey, *PrivateKey) {
 //
 // Panics if seed is not of length KeySeedSize.
 func NewKeyFromSeedMLKEM(seed []byte) (*PublicKey, *PrivateKey) {
-	if len(seed) != KeySeedSize {
-		panic("seed must be of length KeySeedSize")
-	}
-	var seed2 [33]byte
-	copy(seed2[:32], seed)
-	seed2[32] = byte(internal.K)
-	pk, sk := internal.NewKeyFromSeed(seed2[:])
-	return (*PublicKey)(pk), (*PrivateKey)(sk)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // EncryptTo encrypts message pt for the public key and writes the ciphertext
@@ -91,16 +72,8 @@ func NewKeyFromSeedMLKEM(seed []byte) (*PublicKey, *PrivateKey) {
 // This function panics if the lengths of pt, seed, and ct are not
 // PlaintextSize, EncryptionSeedSize, and CiphertextSize respectively.
 func (pk *PublicKey) EncryptTo(ct []byte, pt []byte, seed []byte) {
-	if len(pt) != PlaintextSize {
-		panic("pt must be of length PlaintextSize")
-	}
-	if len(ct) != CiphertextSize {
-		panic("ct must be of length CiphertextSize")
-	}
-	if len(seed) != EncryptionSeedSize {
-		panic("seed must be of length EncryptionSeedSize")
-	}
-	(*internal.PublicKey)(pk).EncryptTo(ct, pt, seed)
+	_ = "STUB: not implemented"
+	return
 }
 
 // DecryptTo decrypts message ct for the private key and writes the
@@ -108,68 +81,33 @@ func (pk *PublicKey) EncryptTo(ct []byte, pt []byte, seed []byte) {
 //
 // This function panics if the lengths of ct and pt are not
 // CiphertextSize and PlaintextSize respectively.
-func (sk *PrivateKey) DecryptTo(pt []byte, ct []byte) {
-	if len(pt) != PlaintextSize {
-		panic("pt must be of length PlaintextSize")
-	}
-	if len(ct) != CiphertextSize {
-		panic("ct must be of length CiphertextSize")
-	}
-	(*internal.PrivateKey)(sk).DecryptTo(pt, ct)
-}
+func (sk *PrivateKey) DecryptTo(pt []byte, ct []byte) { _ = "STUB: not implemented"; return }
 
 // Packs pk into the given buffer.
 //
 // Panics if buf is not of length PublicKeySize.
-func (pk *PublicKey) Pack(buf []byte) {
-	if len(buf) != PublicKeySize {
-		panic("buf must be of size PublicKeySize")
-	}
-	(*internal.PublicKey)(pk).Pack(buf)
-}
+func (pk *PublicKey) Pack(buf []byte) { _ = "STUB: not implemented"; return }
 
 // Packs sk into the given buffer.
 //
 // Panics if buf is not of length PrivateKeySize.
-func (sk *PrivateKey) Pack(buf []byte) {
-	if len(buf) != PrivateKeySize {
-		panic("buf must be of size PrivateKeySize")
-	}
-	(*internal.PrivateKey)(sk).Pack(buf)
-}
+func (sk *PrivateKey) Pack(buf []byte) { _ = "STUB: not implemented"; return }
 
 // Unpacks pk from the given buffer.
 //
 // Panics if buf is not of length PublicKeySize.
-func (pk *PublicKey) Unpack(buf []byte) {
-	if len(buf) != PublicKeySize {
-		panic("buf must be of size PublicKeySize")
-	}
-	(*internal.PublicKey)(pk).Unpack(buf)
-}
+func (pk *PublicKey) Unpack(buf []byte) { _ = "STUB: not implemented"; return }
 
 // Unpacks pk from the given buffer.
 //
 // Returns an error if the buffer is not of the right size, or the public
 // key is not normalized.
-func (pk *PublicKey) UnpackMLKEM(buf []byte) error {
-	if len(buf) != PublicKeySize {
-		return kem.ErrPubKeySize
-	}
-	return (*internal.PublicKey)(pk).UnpackMLKEM(buf)
-}
+func (pk *PublicKey) UnpackMLKEM(buf []byte) error { _ = "STUB: not implemented"; return nil }
 
 // Unpacks sk from the given buffer.
 //
 // Panics if buf is not of length PrivateKeySize.
-func (sk *PrivateKey) Unpack(buf []byte) {
-	if len(buf) != PrivateKeySize {
-		panic("buf must be of size PrivateKeySize")
-	}
-	(*internal.PrivateKey)(sk).Unpack(buf)
-}
+func (sk *PrivateKey) Unpack(buf []byte) { _ = "STUB: not implemented"; return }
 
 // Returns whether the two private keys are equal.
-func (sk *PrivateKey) Equal(other *PrivateKey) bool {
-	return (*internal.PrivateKey)(sk).Equal((*internal.PrivateKey)(other))
-}
+func (sk *PrivateKey) Equal(other *PrivateKey) bool { _ = "STUB: not implemented"; return false }

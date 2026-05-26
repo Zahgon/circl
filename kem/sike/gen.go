@@ -5,30 +5,15 @@
 // between the code for different modes.
 package main
 
-import (
-	"bytes"
-	"fmt"
-	"go/format"
-	"io/ioutil"
-	"strings"
-	"text/template"
-)
-
 type Instance struct {
 	Bits int
 }
 
-func (m Instance) Pkg() string {
-	return strings.ToLower(m.Name())
-}
+func (m Instance) Pkg() string { _ = "STUB: not implemented"; return "" }
 
-func (m Instance) Name() string {
-	return fmt.Sprintf("SIKEp%d", m.Bits)
-}
+func (m Instance) Name() string { _ = "STUB: not implemented"; return "" }
 
-func (m Instance) Field() string {
-	return fmt.Sprintf("Fp%d", m.Bits)
-}
+func (m Instance) Field() string { _ = "STUB: not implemented"; return "" }
 
 var (
 	Instances = []Instance{
@@ -44,33 +29,6 @@ func main() {
 }
 
 // Generates instance/sike.go from templates/pkg.templ.go
-func generatePackageFiles() {
-	tl, err := template.ParseFiles("templates/pkg.templ.go")
-	if err != nil {
-		panic(err)
-	}
+func generatePackageFiles() { _ = "STUB: not implemented"; return }
 
-	for _, mode := range Instances {
-		buf := new(bytes.Buffer)
-		err := tl.Execute(buf, mode)
-		if err != nil {
-			panic(err)
-		}
-
-		// Formating output code
-		code, err := format.Source(buf.Bytes())
-		if err != nil {
-			panic("error formating code")
-		}
-
-		res := string(code)
-		offset := strings.Index(res, TemplateWarning)
-		if offset == -1 {
-			panic("Missing template warning in pkg.templ.go")
-		}
-		err = ioutil.WriteFile(mode.Pkg()+"/sike.go", []byte(res[offset:]), 0o644)
-		if err != nil {
-			panic(err)
-		}
-	}
-}
+// Formating output code

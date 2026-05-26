@@ -22,47 +22,23 @@ type Polynomial struct {
 //
 // The zero polynomial has degree equal to -1 and can be instantiated passing
 // nil to New.
-func New(coeffs []group.Scalar) (p Polynomial) {
-	if l := len(coeffs); l != 0 {
-		p.c = make([]group.Scalar, l)
-		for i := range coeffs {
-			p.c[i] = coeffs[i].Copy()
-		}
-	}
-
-	return
-}
+func New(coeffs []group.Scalar) (p Polynomial) { _ = "STUB: not implemented"; return *new(Polynomial) }
 
 // Degree returns the degree of the polynomial. The zero polynomial has degree
 // equal to -1.
-func (p Polynomial) Degree() int {
-	i := len(p.c) - 1
-	for i > 0 && p.c[i].IsZero() {
-		i--
-	}
-	return i
-}
+func (p Polynomial) Degree() int { _ = "STUB: not implemented"; return 0 }
 
 // Evaluate returns the evaluation of p on x.
 func (p Polynomial) Evaluate(x group.Scalar) group.Scalar {
-	px := x.Group().NewScalar()
-	if l := len(p.c); l != 0 {
-		px.Set(p.c[l-1])
-		for i := l - 2; i >= 0; i-- {
-			px.Mul(px, x)
-			px.Add(px, p.c[i])
-		}
-	}
-	return px
+	_ = "STUB: not implemented"
+	return *new(group.Scalar)
 }
 
 // Coefficient returns a deep-copy of the n-th polynomial's coefficient.
 // Note coefficients are sorted in ascending order with respect to the degree.
 func (p Polynomial) Coefficient(n uint) group.Scalar {
-	if int(n) >= len(p.c) {
-		panic("polynomial: invalid index for coefficient")
-	}
-	return p.c[n].Copy()
+	_ = "STUB: not implemented"
+	return *new(group.Scalar)
 }
 
 // LagrangePolynomial stores a Lagrange polynomial over the set of scalars of a group.
@@ -89,75 +65,27 @@ type LagrangePolynomial struct {
 // The zero polynomial has degree equal to -1 and can be instantiated passing
 // (nil,nil) to NewLagrangePolynomial.
 func NewLagrangePolynomial(x, y []group.Scalar) (l LagrangePolynomial) {
-	if len(x) != len(y) {
-		panic("lagrange: invalid length")
-	}
-
-	if !areAllDifferent(x) {
-		panic("lagrange: x[i] must be different")
-	}
-
-	if n := len(x); n != 0 {
-		l.x, l.y = make([]group.Scalar, n), make([]group.Scalar, n)
-		for i := range x {
-			l.x[i], l.y[i] = x[i].Copy(), y[i].Copy()
-		}
-	}
-
-	return
+	_ = "STUB: not implemented"
+	return *new(LagrangePolynomial)
 }
 
-func (l LagrangePolynomial) Degree() int { return len(l.x) - 1 }
+func (l LagrangePolynomial) Degree() int { _ = "STUB: not implemented"; return 0 }
 
 func (l LagrangePolynomial) Evaluate(x group.Scalar) group.Scalar {
-	px := x.Group().NewScalar()
-	tmp := x.Group().NewScalar()
-	for i := range l.x {
-		LjX := baseRatio(uint(i), l.x, x)
-		tmp.Mul(l.y[i], LjX)
-		px.Add(px, tmp)
-	}
-
-	return px
+	_ = "STUB: not implemented"
+	return *new(group.Scalar)
 }
 
 // LagrangeBase returns the j-th Lagrange polynomial base evaluated at x.
 // Thus, L_j(x) = \prod (x - x[i]) / (x[j] - x[i]) for 0 <= i < k, and i != j.
 func LagrangeBase(jth uint, xi []group.Scalar, x group.Scalar) group.Scalar {
-	if jth >= uint(len(xi)) {
-		panic("lagrange: invalid index")
-	}
-	return baseRatio(jth, xi, x)
+	_ = "STUB: not implemented"
+	return *new(group.Scalar)
 }
 
 func baseRatio(jth uint, xi []group.Scalar, x group.Scalar) group.Scalar {
-	num := x.Copy()
-	num.SetUint64(1)
-	den := x.Copy()
-	den.SetUint64(1)
-
-	tmp := x.Copy()
-	for i := range xi {
-		if uint(i) != jth {
-			num.Mul(num, tmp.Sub(x, xi[i]))
-			den.Mul(den, tmp.Sub(xi[jth], xi[i]))
-		}
-	}
-
-	return num.Mul(num, den.Inv(den))
+	_ = "STUB: not implemented"
+	return *new(group.Scalar)
 }
 
-func areAllDifferent(x []group.Scalar) bool {
-	m := make(map[string]struct{})
-	for i := range x {
-		k, err := x[i].MarshalBinary()
-		if err != nil {
-			panic(err)
-		}
-		if _, exists := m[string(k)]; exists {
-			return false
-		}
-		m[string(k)] = struct{}{}
-	}
-	return true
-}
+func areAllDifferent(x []group.Scalar) bool { _ = "STUB: not implemented"; return false }

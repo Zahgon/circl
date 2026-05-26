@@ -33,7 +33,6 @@ package hybrid
 import (
 	"errors"
 
-	"github.com/cloudflare/circl/internal/sha3"
 	"github.com/cloudflare/circl/kem"
 	"github.com/cloudflare/circl/kem/kyber/kyber1024"
 	"github.com/cloudflare/circl/kem/kyber/kyber512"
@@ -44,23 +43,44 @@ import (
 var ErrUninitialized = errors.New("public or private key not initialized")
 
 // Returns the hybrid KEM of Kyber512Draft00 and X25519.
-func Kyber512X25519() kem.Scheme { return kyber512X }
+func Kyber512X25519() kem.Scheme {
+	_ = "STUB: not implemented"
 
-// Returns the hybrid KEM of Kyber768Draft00 and X25519.
-func Kyber768X25519() kem.Scheme { return kyber768X }
+	// Returns the hybrid KEM of Kyber768Draft00 and X25519.
+	return *new(kem.Scheme)
+}
 
-// Returns the hybrid KEM of Kyber768Draft00 and X448.
-func Kyber768X448() kem.Scheme { return kyber768X4 }
+func Kyber768X25519() kem.Scheme {
+	_ = "STUB: not implemented"
 
-// Returns the hybrid KEM of Kyber1024Draft00 and X448.
-func Kyber1024X448() kem.Scheme { return kyber1024X }
+	// Returns the hybrid KEM of Kyber768Draft00 and X448.
+	return *new(kem.Scheme)
+}
 
-// Returns the hybrid KEM of Kyber768Draft00 and P-256.
-func P256Kyber768Draft00() kem.Scheme { return p256Kyber768Draft00 }
+func Kyber768X448() kem.Scheme {
+	_ = "STUB: not implemented"
 
-// Returns the hybrid KEM of ML-KEM-768 and X25519.
-// https://www.ietf.org/archive/id/draft-kwiatkowski-tls-ecdhe-mlkem-01.html
-func X25519MLKEM768() kem.Scheme { return xmlkem768 }
+	// Returns the hybrid KEM of Kyber1024Draft00 and X448.
+	return *new(kem.Scheme)
+}
+
+func Kyber1024X448() kem.Scheme {
+	_ = "STUB: not implemented"
+
+	// Returns the hybrid KEM of Kyber768Draft00 and P-256.
+	return *new(kem.Scheme)
+}
+
+func P256Kyber768Draft00() kem.Scheme {
+	_ = "STUB: not implemented"
+	return *
+
+	// Returns the hybrid KEM of ML-KEM-768 and X25519.
+	// https://www.ietf.org/archive/id/draft-kwiatkowski-tls-ecdhe-mlkem-01.html
+	new(kem.Scheme)
+}
+
+func X25519MLKEM768() kem.Scheme { _ = "STUB: not implemented"; return *new(kem.Scheme) }
 
 var p256Kyber768Draft00 kem.Scheme = &scheme{
 	"P256Kyber768Draft00",
@@ -119,237 +139,65 @@ type scheme struct {
 	second kem.Scheme
 }
 
-func (sch *scheme) Name() string { return sch.name }
-func (sch *scheme) PublicKeySize() int {
-	return sch.first.PublicKeySize() + sch.second.PublicKeySize()
-}
+func (sch *scheme) Name() string       { _ = "STUB: not implemented"; return "" }
+func (sch *scheme) PublicKeySize() int { _ = "STUB: not implemented"; return 0 }
 
-func (sch *scheme) PrivateKeySize() int {
-	return sch.first.PrivateKeySize() + sch.second.PrivateKeySize()
-}
+func (sch *scheme) PrivateKeySize() int { _ = "STUB: not implemented"; return 0 }
 
-func (sch *scheme) SeedSize() int {
-	first := sch.first.SeedSize()
-	second := sch.second.SeedSize()
-	ret := second
-	if first > second {
-		ret = first
-	}
-	return ret
-}
+func (sch *scheme) SeedSize() int { _ = "STUB: not implemented"; return 0 }
 
-func (sch *scheme) SharedKeySize() int {
-	return sch.first.SharedKeySize() + sch.second.SharedKeySize()
-}
+func (sch *scheme) SharedKeySize() int { _ = "STUB: not implemented"; return 0 }
 
-func (sch *scheme) CiphertextSize() int {
-	return sch.first.CiphertextSize() + sch.second.CiphertextSize()
-}
+func (sch *scheme) CiphertextSize() int { _ = "STUB: not implemented"; return 0 }
 
-func (sch *scheme) EncapsulationSeedSize() int {
-	first := sch.first.EncapsulationSeedSize()
-	second := sch.second.EncapsulationSeedSize()
-	ret := second
-	if first > second {
-		ret = first
-	}
-	return ret
-}
+func (sch *scheme) EncapsulationSeedSize() int { _ = "STUB: not implemented"; return 0 }
 
-func (sk *privateKey) Scheme() kem.Scheme { return sk.scheme }
-func (pk *publicKey) Scheme() kem.Scheme  { return pk.scheme }
+func (sk *privateKey) Scheme() kem.Scheme { _ = "STUB: not implemented"; return *new(kem.Scheme) }
+func (pk *publicKey) Scheme() kem.Scheme  { _ = "STUB: not implemented"; return *new(kem.Scheme) }
 
-func (sk *privateKey) MarshalBinary() ([]byte, error) {
-	if sk.first == nil || sk.second == nil {
-		return nil, ErrUninitialized
-	}
-	first, err := sk.first.MarshalBinary()
-	if err != nil {
-		return nil, err
-	}
-	second, err := sk.second.MarshalBinary()
-	if err != nil {
-		return nil, err
-	}
-	return append(first, second...), nil
-}
+func (sk *privateKey) MarshalBinary() ([]byte, error) { _ = "STUB: not implemented"; return nil, nil }
 
-func (sk *privateKey) Equal(other kem.PrivateKey) bool {
-	oth, ok := other.(*privateKey)
-	if !ok {
-		return false
-	}
-	if sk.first == nil && sk.second == nil && oth.first == nil && oth.second == nil {
-		return true
-	}
-	if sk.first == nil || sk.second == nil || oth.first == nil || oth.second == nil {
-		return false
-	}
-	return sk.first.Equal(oth.first) && sk.second.Equal(oth.second)
-}
+func (sk *privateKey) Equal(other kem.PrivateKey) bool { _ = "STUB: not implemented"; return false }
 
-func (sk *privateKey) Public() kem.PublicKey {
-	return &publicKey{sk.scheme, sk.first.Public(), sk.second.Public()}
-}
+func (sk *privateKey) Public() kem.PublicKey { _ = "STUB: not implemented"; return *new(kem.PublicKey) }
 
-func (pk *publicKey) Equal(other kem.PublicKey) bool {
-	oth, ok := other.(*publicKey)
-	if !ok {
-		return false
-	}
-	if pk.first == nil && pk.second == nil && oth.first == nil && oth.second == nil {
-		return true
-	}
-	if pk.first == nil || pk.second == nil || oth.first == nil || oth.second == nil {
-		return false
-	}
-	return pk.first.Equal(oth.first) && pk.second.Equal(oth.second)
-}
+func (pk *publicKey) Equal(other kem.PublicKey) bool { _ = "STUB: not implemented"; return false }
 
-func (pk *publicKey) MarshalBinary() ([]byte, error) {
-	if pk.first == nil || pk.second == nil {
-		return nil, ErrUninitialized
-	}
-	first, err := pk.first.MarshalBinary()
-	if err != nil {
-		return nil, err
-	}
-	second, err := pk.second.MarshalBinary()
-	if err != nil {
-		return nil, err
-	}
-	return append(first, second...), nil
-}
+func (pk *publicKey) MarshalBinary() ([]byte, error) { _ = "STUB: not implemented"; return nil, nil }
 
 func (sch *scheme) GenerateKeyPair() (kem.PublicKey, kem.PrivateKey, error) {
-	pk1, sk1, err := sch.first.GenerateKeyPair()
-	if err != nil {
-		return nil, nil, err
-	}
-	pk2, sk2, err := sch.second.GenerateKeyPair()
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return &publicKey{sch, pk1, pk2}, &privateKey{sch, sk1, sk2}, nil
+	_ = "STUB: not implemented"
+	return *new(kem.PublicKey), *new(kem.PrivateKey), nil
 }
 
 func (sch *scheme) DeriveKeyPair(seed []byte) (kem.PublicKey, kem.PrivateKey) {
-	if len(seed) != sch.SeedSize() {
-		panic(kem.ErrSeedSize)
-	}
-	h := sha3.NewShake256()
-	_, _ = h.Write(seed)
-	first := make([]byte, sch.first.SeedSize())
-	second := make([]byte, sch.second.SeedSize())
-	_, _ = h.Read(first)
-	_, _ = h.Read(second)
-
-	pk1, sk1 := sch.first.DeriveKeyPair(first)
-	pk2, sk2 := sch.second.DeriveKeyPair(second)
-
-	return &publicKey{sch, pk1, pk2}, &privateKey{sch, sk1, sk2}
+	_ = "STUB: not implemented"
+	return *new(kem.PublicKey), *new(kem.PrivateKey)
 }
 
 func (sch *scheme) Encapsulate(pk kem.PublicKey) (ct, ss []byte, err error) {
-	pub, ok := pk.(*publicKey)
-	if !ok {
-		return nil, nil, kem.ErrTypeMismatch
-	}
-
-	ct1, ss1, err := sch.first.Encapsulate(pub.first)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	ct2, ss2, err := sch.second.Encapsulate(pub.second)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return append(ct1, ct2...), append(ss1, ss2...), nil
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }
 
 func (sch *scheme) EncapsulateDeterministically(
 	pk kem.PublicKey, seed []byte,
 ) (ct, ss []byte, err error) {
-	if len(seed) != sch.EncapsulationSeedSize() {
-		return nil, nil, kem.ErrSeedSize
-	}
-
-	h := sha3.NewShake256()
-	_, _ = h.Write(seed)
-	first := make([]byte, sch.first.EncapsulationSeedSize())
-	second := make([]byte, sch.second.EncapsulationSeedSize())
-	_, _ = h.Read(first)
-	_, _ = h.Read(second)
-
-	pub, ok := pk.(*publicKey)
-	if !ok {
-		return nil, nil, kem.ErrTypeMismatch
-	}
-
-	ct1, ss1, err := sch.first.EncapsulateDeterministically(pub.first, first)
-	if err != nil {
-		return nil, nil, err
-	}
-	ct2, ss2, err := sch.second.EncapsulateDeterministically(pub.second, second)
-	if err != nil {
-		return nil, nil, err
-	}
-	return append(ct1, ct2...), append(ss1, ss2...), nil
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }
 
 func (sch *scheme) Decapsulate(sk kem.PrivateKey, ct []byte) ([]byte, error) {
-	if len(ct) != sch.CiphertextSize() {
-		return nil, kem.ErrCiphertextSize
-	}
-
-	priv, ok := sk.(*privateKey)
-	if !ok {
-		return nil, kem.ErrTypeMismatch
-	}
-
-	firstSize := sch.first.CiphertextSize()
-	ss1, err := sch.first.Decapsulate(priv.first, ct[:firstSize])
-	if err != nil {
-		return nil, err
-	}
-	ss2, err := sch.second.Decapsulate(priv.second, ct[firstSize:])
-	if err != nil {
-		return nil, err
-	}
-	return append(ss1, ss2...), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (sch *scheme) UnmarshalBinaryPublicKey(buf []byte) (kem.PublicKey, error) {
-	if len(buf) != sch.PublicKeySize() {
-		return nil, kem.ErrPubKeySize
-	}
-	firstSize := sch.first.PublicKeySize()
-	pk1, err := sch.first.UnmarshalBinaryPublicKey(buf[:firstSize])
-	if err != nil {
-		return nil, err
-	}
-	pk2, err := sch.second.UnmarshalBinaryPublicKey(buf[firstSize:])
-	if err != nil {
-		return nil, err
-	}
-	return &publicKey{sch, pk1, pk2}, nil
+	_ = "STUB: not implemented"
+	return *new(kem.PublicKey), nil
 }
 
 func (sch *scheme) UnmarshalBinaryPrivateKey(buf []byte) (kem.PrivateKey, error) {
-	if len(buf) != sch.PrivateKeySize() {
-		return nil, kem.ErrPrivKeySize
-	}
-	firstSize := sch.first.PrivateKeySize()
-	sk1, err := sch.first.UnmarshalBinaryPrivateKey(buf[:firstSize])
-	if err != nil {
-		return nil, err
-	}
-	sk2, err := sch.second.UnmarshalBinaryPrivateKey(buf[firstSize:])
-	if err != nil {
-		return nil, err
-	}
-	return &privateKey{sch, sk1, sk2}, nil
+	_ = "STUB: not implemented"
+	return *new(kem.PrivateKey), nil
 }

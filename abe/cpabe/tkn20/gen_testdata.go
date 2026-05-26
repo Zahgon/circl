@@ -12,20 +12,9 @@ import (
 	"github.com/cloudflare/circl/xof"
 )
 
-func writeToFile(name string, data []byte) {
-	err := os.WriteFile("testdata/"+name, data, 0o644)
-	if err != nil {
-		panic(err)
-	}
-}
+func writeToFile(name string, data []byte) { _ = "STUB: not implemented"; return }
 
-func dumpToFile(name string, m encoding.BinaryMarshaler) {
-	data, err := m.MarshalBinary()
-	if err != nil {
-		panic(err)
-	}
-	writeToFile(name, data)
-}
+func dumpToFile(name string, m encoding.BinaryMarshaler) { _ = "STUB: not implemented"; return }
 
 func main() {
 	// Using fixed PRNG for reproducibility,

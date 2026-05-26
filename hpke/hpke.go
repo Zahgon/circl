@@ -14,7 +14,6 @@
 package hpke
 
 import (
-	"crypto/rand"
 	"encoding"
 	"errors"
 	"io"
@@ -80,11 +79,8 @@ type Suite struct {
 // NewSuite builds a Suite from a specified set of algorithms. Panics
 // if an algorithm identifier is not valid.
 func NewSuite(kemID KEM, kdfID KDF, aeadID AEAD) Suite {
-	s := Suite{kemID, kdfID, aeadID}
-	if !s.isValid() {
-		panic(ErrInvalidHPKESuite)
-	}
-	return s
+	_ = "STUB: not implemented"
+	return *new(Suite)
 }
 
 type state struct {
@@ -105,17 +101,15 @@ type Sender struct {
 
 // NewSender creates a Sender with knowledge of the receiver's public-key.
 func (suite Suite) NewSender(pkR kem.PublicKey, info []byte) (*Sender, error) {
-	return &Sender{
-		state: state{Suite: suite, info: info},
-		pkR:   pkR,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Setup generates a new HPKE context used for Base Mode encryption.
 // Returns the Sealer and corresponding encapsulated key.
 func (s *Sender) Setup(rnd io.Reader) (enc []byte, seal Sealer, err error) {
-	s.modeID = modeBase
-	return s.allSetup(rnd)
+	_ = "STUB: not implemented"
+	return nil, *new(Sealer), nil
 }
 
 // SetupAuth generates a new HPKE context used for Auth Mode encryption.
@@ -123,9 +117,8 @@ func (s *Sender) Setup(rnd io.Reader) (enc []byte, seal Sealer, err error) {
 func (s *Sender) SetupAuth(rnd io.Reader, skS kem.PrivateKey) (
 	enc []byte, seal Sealer, err error,
 ) {
-	s.modeID = modeAuth
-	s.state.skS = skS
-	return s.allSetup(rnd)
+	_ = "STUB: not implemented"
+	return nil, *new(Sealer), nil
 }
 
 // SetupPSK generates a new HPKE context used for PSK Mode encryption.
@@ -133,10 +126,8 @@ func (s *Sender) SetupAuth(rnd io.Reader, skS kem.PrivateKey) (
 func (s *Sender) SetupPSK(rnd io.Reader, psk, pskID []byte) (
 	enc []byte, seal Sealer, err error,
 ) {
-	s.modeID = modePSK
-	s.state.psk = psk
-	s.state.pskID = pskID
-	return s.allSetup(rnd)
+	_ = "STUB: not implemented"
+	return nil, *new(Sealer), nil
 }
 
 // SetupAuthPSK generates a new HPKE context used for Auth-PSK Mode encryption.
@@ -144,11 +135,8 @@ func (s *Sender) SetupPSK(rnd io.Reader, psk, pskID []byte) (
 func (s *Sender) SetupAuthPSK(rnd io.Reader, skS kem.PrivateKey, psk, pskID []byte) (
 	enc []byte, seal Sealer, err error,
 ) {
-	s.modeID = modeAuthPSK
-	s.state.skS = skS
-	s.state.psk = psk
-	s.state.pskID = pskID
-	return s.allSetup(rnd)
+	_ = "STUB: not implemented"
+	return nil, *new(Sealer), nil
 }
 
 // Receiver performs hybrid public-key decryption.
@@ -162,35 +150,30 @@ type Receiver struct {
 func (suite Suite) NewReceiver(skR kem.PrivateKey, info []byte) (
 	*Receiver, error,
 ) {
-	return &Receiver{state: state{Suite: suite, info: info}, skR: skR}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Setup generates a new HPKE context used for Base Mode encryption.
 // Setup takes an encapsulated key and returns an Opener.
 func (r *Receiver) Setup(enc []byte) (Opener, error) {
-	r.modeID = modeBase
-	r.enc = enc
-	return r.allSetup()
+	_ = "STUB: not implemented"
+	return *new(Opener), nil
 }
 
 // SetupAuth generates a new HPKE context used for Auth Mode encryption.
 // SetupAuth takes an encapsulated key and a public key, and returns an Opener.
 func (r *Receiver) SetupAuth(enc []byte, pkS kem.PublicKey) (Opener, error) {
-	r.modeID = modeAuth
-	r.enc = enc
-	r.state.pkS = pkS
-	return r.allSetup()
+	_ = "STUB: not implemented"
+	return *new(Opener), nil
 }
 
 // SetupPSK generates a new HPKE context used for PSK Mode encryption.
 // SetupPSK takes an encapsulated key, and a pre-shared key; and returns an
 // Opener.
 func (r *Receiver) SetupPSK(enc, psk, pskID []byte) (Opener, error) {
-	r.modeID = modePSK
-	r.enc = enc
-	r.state.psk = psk
-	r.state.pskID = pskID
-	return r.allSetup()
+	_ = "STUB: not implemented"
+	return *new(Opener), nil
 }
 
 // SetupAuthPSK generates a new HPKE context used for Auth-PSK Mode encryption.
@@ -199,75 +182,16 @@ func (r *Receiver) SetupPSK(enc, psk, pskID []byte) (Opener, error) {
 func (r *Receiver) SetupAuthPSK(
 	enc, psk, pskID []byte, pkS kem.PublicKey,
 ) (Opener, error) {
-	r.modeID = modeAuthPSK
-	r.enc = enc
-	r.state.psk = psk
-	r.state.pskID = pskID
-	r.state.pkS = pkS
-	return r.allSetup()
+	_ = "STUB: not implemented"
+	return *new(Opener), nil
 }
 
 func (s *Sender) allSetup(rnd io.Reader) ([]byte, Sealer, error) {
-	scheme := s.kemID.Scheme()
-
-	if rnd == nil {
-		rnd = rand.Reader
-	}
-	seed := make([]byte, scheme.EncapsulationSeedSize())
-	_, err := io.ReadFull(rnd, seed)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var enc, ss []byte
-	switch s.modeID {
-	case modeBase, modePSK:
-		enc, ss, err = scheme.EncapsulateDeterministically(s.pkR, seed)
-	case modeAuth, modeAuthPSK:
-		authScheme, ok := scheme.(kem.AuthScheme)
-		if !ok {
-			return nil, nil, ErrInvalidAuthKEM
-		}
-
-		enc, ss, err = authScheme.AuthEncapsulateDeterministically(s.pkR, s.skS, seed)
-	}
-	if err != nil {
-		return nil, nil, err
-	}
-
-	ctx, err := s.keySchedule(ss, s.info, s.psk, s.pskID)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return enc, &sealContext{ctx}, nil
+	_ = "STUB: not implemented"
+	return nil, *new(Sealer), nil
 }
 
-func (r *Receiver) allSetup() (Opener, error) {
-	var err error
-	var ss []byte
-	scheme := r.kemID.Scheme()
-	switch r.modeID {
-	case modeBase, modePSK:
-		ss, err = scheme.Decapsulate(r.skR, r.enc)
-	case modeAuth, modeAuthPSK:
-		authScheme, ok := scheme.(kem.AuthScheme)
-		if !ok {
-			return nil, ErrInvalidAuthKEM
-		}
-
-		ss, err = authScheme.AuthDecapsulate(r.skR, r.enc, r.pkS)
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	ctx, err := r.keySchedule(ss, r.info, r.psk, r.pskID)
-	if err != nil {
-		return nil, err
-	}
-	return &openContext{ctx}, nil
-}
+func (r *Receiver) allSetup() (Opener, error) { _ = "STUB: not implemented"; return *new(Opener), nil }
 
 var (
 	ErrInvalidHPKESuite       = errors.New("hpke: invalid HPKE suite")

@@ -20,9 +20,7 @@ type Curve interface {
 // Params returns the parameters for the curve. Note: The value returned by
 // this function fallbacks to the stdlib implementation of elliptic curve
 // operations. Use this method to only recover elliptic curve parameters.
-func (c curve) Params() *elliptic.CurveParams { return elliptic.P384().Params() }
+func (c curve) Params() *elliptic.CurveParams { _ = "STUB: not implemented"; return nil }
 
 // IsAtInfinity returns True is the point is the identity point.
-func (c curve) IsAtInfinity(x, y *big.Int) bool {
-	return x.Sign() == 0 && y.Sign() == 0
-}
+func (c curve) IsAtInfinity(x, y *big.Int) bool { _ = "STUB: not implemented"; return false }

@@ -58,6 +58,7 @@ var InvNTTReductions = [...]int{
 // The order of coefficients will be "tangled". These can be put back into
 // their proper order by calling Detangle().
 func (p *Poly) nttGeneric() {
+	_ = "STUB: not implemented"
 	// Note that ℤ_q does not have a primitive 512ᵗʰ root of unity (as 512
 	// does not divide into q-1) and so we cannot do a regular NTT.  ℤ_q
 	// does have a primitive 256ᵗʰ root of unity, the smallest of which
@@ -68,10 +69,11 @@ func (p *Poly) nttGeneric() {
 	// of unity.)  However, it does split almost (using ζ¹²⁸ = -1):
 	//
 	// x²⁵⁶ + 1 = (x²)¹²⁸ - ζ¹²⁸
-	//          = ((x²)⁶⁴ - ζ⁶⁴)((x²)⁶⁴ + ζ⁶⁴)
-	//          = ((x²)³² - ζ³²)((x²)³² + ζ³²)((x²)³² - ζ⁹⁶)((x²)³² + ζ⁹⁶)
-	//          ⋮
-	//          = (x² - ζ)(x² + ζ)(x² - ζ⁶⁵)(x² + ζ⁶⁵) … (x² + ζ¹²⁷)
+	//
+	//	= ((x²)⁶⁴ - ζ⁶⁴)((x²)⁶⁴ + ζ⁶⁴)
+	//	= ((x²)³² - ζ³²)((x²)³² + ζ³²)((x²)³² - ζ⁹⁶)((x²)³² + ζ⁹⁶)
+	//	⋮
+	//	= (x² - ζ)(x² + ζ)(x² - ζ⁶⁵)(x² + ζ⁶⁵) … (x² + ζ¹²⁷)
 	//
 	// Note that the powers of ζ that appear (from the second line down) are
 	// in binary
@@ -79,7 +81,8 @@ func (p *Poly) nttGeneric() {
 	// 0100000 1100000
 	// 0010000 1010000 0110000 1110000
 	// 0001000 1001000 0101000 1101000 0011000 1011000 0111000 1111000
-	//         …
+	//
+	//	…
 	//
 	// That is: brv(2), brv(3), brv(4), …, where brv(x) denotes the 7-bit
 	// bitreversal of x.  These powers of ζ are given by the Zetas array.
@@ -87,52 +90,42 @@ func (p *Poly) nttGeneric() {
 	// The polynomials x² ± ζⁱ are irreducible and coprime, hence by
 	// the Chinese Remainder Theorem we know
 	//
-	//  ℤ_q[x]/(x²⁵⁶+1) → ℤ_q[x]/(x²-ζ) x … x  ℤ_q[x]/(x²+ζ¹²⁷)
+	//	ℤ_q[x]/(x²⁵⁶+1) → ℤ_q[x]/(x²-ζ) x … x  ℤ_q[x]/(x²+ζ¹²⁷)
 	//
 	// given by a ↦ ( a mod x²-ζ, …, a mod x²+ζ¹²⁷ )
 	// is an isomorphism, which is the "NTT".  It can be efficiently computed by
 	//
+	//	 a ↦ ( a mod (x²)⁶⁴ - ζ⁶⁴, a mod (x²)⁶⁴ + ζ⁶⁴ )
+	//	   ↦ ( a mod (x²)³² - ζ³², a mod (x²)³² + ζ³²,
+	//	       a mod (x²)⁹⁶ - ζ⁹⁶, a mod (x²)⁹⁶ + ζ⁹⁶ )
 	//
-	//  a ↦ ( a mod (x²)⁶⁴ - ζ⁶⁴, a mod (x²)⁶⁴ + ζ⁶⁴ )
-	//    ↦ ( a mod (x²)³² - ζ³², a mod (x²)³² + ζ³²,
-	//        a mod (x²)⁹⁶ - ζ⁹⁶, a mod (x²)⁹⁶ + ζ⁹⁶ )
-	//
-	//	    et cetera
+	//		    et cetera
 	//
 	// If N was 8 then this can be pictured in the following diagram:
 	//
-	//  https://cnx.org/resources/17ee4dfe517a6adda05377b25a00bf6e6c93c334/File0026.png
+	//	https://cnx.org/resources/17ee4dfe517a6adda05377b25a00bf6e6c93c334/File0026.png
 	//
 	// Each cross is a Cooley-Tukey butterfly: it's the map
 	//
-	//  (a, b) ↦ (a + ζb, a - ζb)
+	//	(a, b) ↦ (a + ζb, a - ζb)
 	//
 	// for the appropriate power ζ for that column and row group.
-
-	k := 0 // Index into Zetas
-
-	// l runs effectively over the columns in the diagram above; it is half the
-	// height of a row group, i.e. the number of butterflies in each row group.
-	// In the diagram above it would be 4, 2, 1.
-	for l := N / 2; l > 1; l >>= 1 {
-		// On the nᵗʰ iteration of the l-loop, the absolute value of the
-		// coefficients are bounded by nq.
-
-		// offset effectively loops over the row groups in this column; it is
-		// the first row in the row group.
-		for offset := 0; offset < N-l; offset += 2 * l {
-			k++
-			zeta := int32(Zetas[k])
-
-			// j loops over each butterfly in the row group.
-			for j := offset; j < offset+l; j++ {
-				t := montReduce(zeta * int32(p[j+l]))
-				p[j+l] = p[j] - t
-				p[j] += t
-			}
-		}
-	}
+	return
 }
+
+// Index into Zetas
+
+// l runs effectively over the columns in the diagram above; it is half the
+// height of a row group, i.e. the number of butterflies in each row group.
+// In the diagram above it would be 4, 2, 1.
+
+// On the nᵗʰ iteration of the l-loop, the absolute value of the
+// coefficients are bounded by nq.
+
+// offset effectively loops over the row groups in this column; it is
+// the first row in the row group.
+
+// j loops over each butterfly in the row group.
 
 // Executes an in-place inverse "NTT" on p and multiply by the Montgomery
 // factor R.
@@ -143,51 +136,31 @@ func (p *Poly) nttGeneric() {
 // form, then the result is in Montgomery form and so (by linearity)
 // if the input is in regular form, then the result is also in regular form.
 func (p *Poly) invNTTGeneric() {
-	k := 127 // Index into Zetas
-	r := -1  // Index into InvNTTReductions.
-
-	// We basically do the opposite of NTT, but postpone dividing by 2 in the
-	// inverse of the Cooley-Tukey butterfly and accumulate that into a big
-	// division by 2⁷ at the end.  See the comments in the NTT() function.
-
-	for l := 2; l < N; l <<= 1 {
-		for offset := 0; offset < N-l; offset += 2 * l {
-			// As we're inverting, we need powers of ζ⁻¹ (instead of ζ).
-			// To be precise, we need ζᵇʳᵛ⁽ᵏ⁾⁻¹²⁸. However, as ζ⁻¹²⁸ = -1,
-			// we can use the existing Zetas table instead of
-			// keeping a separate InvZetas table as in Dilithium.
-
-			minZeta := int32(Zetas[k])
-			k--
-
-			for j := offset; j < offset+l; j++ {
-				// Gentleman-Sande butterfly: (a, b) ↦ (a + b, ζ(a-b))
-				t := p[j+l] - p[j]
-				p[j] += p[j+l]
-				p[j+l] = montReduce(minZeta * int32(t))
-
-				// Note that if we had |a| < αq and |b| < βq before the
-				// butterfly, then now we have |a| < (α+β)q and |b| < q.
-			}
-		}
-
-		// We let the InvNTTReductions instruct us which coefficients to
-		// Barrett reduce.  See TestInvNTTReductions, which tests whether
-		// there is an overflow.
-		for {
-			r++
-			i := InvNTTReductions[r]
-			if i < 0 {
-				break
-			}
-			p[i] = barrettReduce(p[i])
-		}
-	}
-
-	for j := 0; j < N; j++ {
-		// Note 1441 = (128)⁻¹ R².  The coefficients are bounded by 9q, so
-		// as 1441 * 9 ≈ 2¹⁴ < 2¹⁵, we're within the required bounds
-		// for montReduce().
-		p[j] = montReduce(1441 * int32(p[j]))
-	}
+	_ = "STUB: not implemented"
+	// Index into Zetas
+	return
 }
+
+// Index into InvNTTReductions.
+
+// We basically do the opposite of NTT, but postpone dividing by 2 in the
+// inverse of the Cooley-Tukey butterfly and accumulate that into a big
+// division by 2⁷ at the end.  See the comments in the NTT() function.
+
+// As we're inverting, we need powers of ζ⁻¹ (instead of ζ).
+// To be precise, we need ζᵇʳᵛ⁽ᵏ⁾⁻¹²⁸. However, as ζ⁻¹²⁸ = -1,
+// we can use the existing Zetas table instead of
+// keeping a separate InvZetas table as in Dilithium.
+
+// Gentleman-Sande butterfly: (a, b) ↦ (a + b, ζ(a-b))
+
+// Note that if we had |a| < αq and |b| < βq before the
+// butterfly, then now we have |a| < (α+β)q and |b| < q.
+
+// We let the InvNTTReductions instruct us which coefficients to
+// Barrett reduce.  See TestInvNTTReductions, which tests whether
+// there is an overflow.
+
+// Note 1441 = (128)⁻¹ R².  The coefficients are bounded by 9q, so
+// as 1441 * 9 ≈ 2¹⁴ < 2¹⁵, we're within the required bounds
+// for montReduce().

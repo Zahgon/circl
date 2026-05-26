@@ -20,7 +20,6 @@ package slhdsa
 
 import (
 	"crypto"
-	"crypto/rand"
 	"errors"
 	"io"
 )
@@ -30,28 +29,9 @@ import (
 func GenerateKey(
 	random io.Reader, id ID,
 ) (pub PublicKey, priv PrivateKey, err error) {
+	_ = "STUB: not implemented"
 	// See FIPS 205 -- Section 10.1 -- Algorithm 21.
-	params := id.params()
-
-	var skSeed, skPrf, pkSeed []byte
-	skSeed, err = readRandom(random, params.n)
-	if err != nil {
-		return
-	}
-
-	skPrf, err = readRandom(random, params.n)
-	if err != nil {
-		return
-	}
-
-	pkSeed, err = readRandom(random, params.n)
-	if err != nil {
-		return
-	}
-
-	pub, priv = slhKeyGenInternal(params, skSeed, skPrf, pkSeed)
-
-	return
+	return *new(PublicKey), *new(PrivateKey), nil
 }
 
 // [SignDeterministic] returns the signature of the message with the
@@ -59,7 +39,8 @@ func GenerateKey(
 func SignDeterministic(
 	priv *PrivateKey, message *Message, context []byte,
 ) (signature []byte, err error) {
-	return priv.doSign(message, context, priv.publicKey.seed)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // [SignRandomized] returns a random signature of the message with the
@@ -68,13 +49,8 @@ func SignDeterministic(
 func SignRandomized(
 	priv *PrivateKey, random io.Reader, message *Message, context []byte,
 ) (signature []byte, err error) {
-	params := priv.ID.params()
-	addRand, err := readRandom(random, params.n)
-	if err != nil {
-		return nil, err
-	}
-
-	return priv.doSign(message, context, addRand)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // [PrivateKey.Sign] returns a randomized signature of the message with an
@@ -84,40 +60,29 @@ func SignRandomized(
 func (k PrivateKey) Sign(
 	random io.Reader, message []byte, _ crypto.SignerOpts,
 ) (signature []byte, err error) {
-	return SignRandomized(&k, random, NewMessage(message), nil)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (k *PrivateKey) doSign(
 	message *Message, context, addRand []byte,
 ) ([]byte, error) {
+	_ = "STUB: not implemented"
 	// See FIPS 205 -- Section 10.2 -- Algorithm 22 and Algorithm 23.
-	msgPrime, err := message.getMsgPrime(context)
-	if err != nil {
-		return nil, err
-	}
-
-	return slhSignInternal(k, msgPrime, addRand)
+	return nil, nil
 }
 
 // [Verify] returns true if the signature of the message with the specified
 // context is valid.
 func Verify(key *PublicKey, message *Message, signature, context []byte) bool {
+	_ = "STUB: not implemented"
 	// See FIPS 205 -- Section 10.3 -- Algorithm 24.
-	msgPrime, err := message.getMsgPrime(context)
-	if err != nil {
-		return false
-	}
-
-	return slhVerifyInternal(key, msgPrime, signature)
+	return false
 }
 
 func readRandom(random io.Reader, size uint32) (out []byte, err error) {
-	out = make([]byte, size)
-	if random == nil {
-		random = rand.Reader
-	}
-	_, err = random.Read(out)
-	return
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 var (

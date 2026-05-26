@@ -109,22 +109,24 @@ var InvZetas = [N]uint32{
 // by 2*Q.  The resulting coefficients are again in Montgomery representation,
 // but are only bounded bt 18*Q.
 func (p *Poly) nttGeneric() {
+	_ = "STUB: not implemented"
 	// Writing z := zeta for our root of unity zeta := 1753, note z²⁵⁶=-1
 	// (otherwise the order of z wouldn't be 512) and so
 	//
-	//  x²⁵⁶ + 1 = x²⁵⁶ - z²⁵⁶
-	//           = (x¹²⁸ - z¹²⁸)(x¹²⁸ + z¹²⁸)
-	//           = (x⁶⁴ - z⁶⁴)(x⁶⁴ + z⁶⁴)(x⁶⁴ + z¹⁹²)(x⁶⁴ - z¹⁹²)
-	//          ...
-	//           = (x-z)(x+z)(x - z¹²⁹)(x + z¹²⁹) ... (x - z²⁵⁵)(x + z²⁵⁵)
+	//	x²⁵⁶ + 1 = x²⁵⁶ - z²⁵⁶
+	//	         = (x¹²⁸ - z¹²⁸)(x¹²⁸ + z¹²⁸)
+	//	         = (x⁶⁴ - z⁶⁴)(x⁶⁴ + z⁶⁴)(x⁶⁴ + z¹⁹²)(x⁶⁴ - z¹⁹²)
+	//	        ...
+	//	         = (x-z)(x+z)(x - z¹²⁹)(x + z¹²⁹) ... (x - z²⁵⁵)(x + z²⁵⁵)
 	//
 	// Note that the powers of z that appear (from the second line) are
-	//  in binary
 	//
-	//  01000000 11000000
-	//  00100000 10100000 01100000 11100000
-	//  00010000 10010000 01010000 11010000 00110000 10110000 01110000 11110000
-	//     ...
+	//	in binary
+	//
+	//	01000000 11000000
+	//	00100000 10100000 01100000 11100000
+	//	00010000 10010000 01010000 11010000 00110000 10110000 01110000 11110000
+	//	   ...
 	//
 	// i.e. brv(2), brv(3), brv(4), ... and these powers of z are given by
 	// the Zetas array.
@@ -132,56 +134,49 @@ func (p *Poly) nttGeneric() {
 	// The polynomials x ± zⁱ are irreducible and coprime, hence by the
 	// Chinese Remainder Theorem we know
 	//
-	//  R[x]/(x²⁵⁶+1) → R[x] / (x-z) x ... x R[x] / (x+z²⁵⁵)
-	//                      ~= ∏_i R
+	//	R[x]/(x²⁵⁶+1) → R[x] / (x-z) x ... x R[x] / (x+z²⁵⁵)
+	//	                    ~= ∏_i R
 	//
 	// given by
 	//
-	//  a ↦ ( a mod x-z, ..., a mod x+z²⁵⁵ )
-	//    ~ ( a(z), a(-z), a(z¹²⁹), a(-z¹²⁹), ..., a(z²⁵⁵), a(-z²⁵⁵) )
+	//	a ↦ ( a mod x-z, ..., a mod x+z²⁵⁵ )
+	//	  ~ ( a(z), a(-z), a(z¹²⁹), a(-z¹²⁹), ..., a(z²⁵⁵), a(-z²⁵⁵) )
 	//
 	// is an isomorphism, which is the forward NTT.  It can be computed
 	// efficiently by computing
 	//
-	//  a ↦ ( a mod x¹²⁸ - z¹²⁸, a mod x¹²⁸ + z¹²⁸ )
-	//    ↦ ( a mod x⁶⁴ - z⁶⁴,  a mod x⁶⁴ + z⁶⁴,
-	//        a mod x⁶⁴ - z¹⁹², a mod x⁶⁴ + z¹⁹² )
-	//       et cetera
+	//	a ↦ ( a mod x¹²⁸ - z¹²⁸, a mod x¹²⁸ + z¹²⁸ )
+	//	  ↦ ( a mod x⁶⁴ - z⁶⁴,  a mod x⁶⁴ + z⁶⁴,
+	//	      a mod x⁶⁴ - z¹⁹², a mod x⁶⁴ + z¹⁹² )
+	//	     et cetera
 	//
 	// If N was 8 then this can be pictured in the following diagram:
 	//
-	//  https://cnx.org/resources/17ee4dfe517a6adda05377b25a00bf6e6c93c334/File0026.png
+	//	https://cnx.org/resources/17ee4dfe517a6adda05377b25a00bf6e6c93c334/File0026.png
 	//
 	// Each cross is a Cooley--Tukey butterfly: it's the map
 	//
-	//      (a, b) ↦ (a + ζ, a - ζ)
+	//	(a, b) ↦ (a + ζ, a - ζ)
 	//
 	// for the appropriate ζ for that column and row group.
-
-	k := 0 // Index into Zetas
-
-	// l runs effectively over the columns in the diagram above; it is
-	// half the height of a row group, i.e. the number of butterflies in
-	// each row group.  In the diagram above it would be 4, 2, 1.
-	for l := uint(N / 2); l > 0; l >>= 1 {
-		// On the n-th iteration of the l-loop, the coefficients start off
-		// bounded by n*2*Q.
-		//
-		// offset effectively loops over the row groups in this column; it
-		// is the first row in the row group.
-		for offset := uint(0); offset < N-l; offset += 2 * l {
-			k++
-			zeta := uint64(Zetas[k])
-
-			// j loops over each butterfly in the row group.
-			for j := offset; j < offset+l; j++ {
-				t := montReduceLe2Q(zeta * uint64(p[j+l]))
-				p[j+l] = p[j] + (2*Q - t) // Cooley--Tukey butterfly
-				p[j] += t
-			}
-		}
-	}
+	return
 }
+
+// Index into Zetas
+
+// l runs effectively over the columns in the diagram above; it is
+// half the height of a row group, i.e. the number of butterflies in
+// each row group.  In the diagram above it would be 4, 2, 1.
+
+// On the n-th iteration of the l-loop, the coefficients start off
+// bounded by n*2*Q.
+//
+// offset effectively loops over the row groups in this column; it
+// is the first row in the row group.
+
+// j loops over each butterfly in the row group.
+
+// Cooley--Tukey butterfly
 
 // Execute an in-place inverse NTT and multiply by Montgomery factor R
 //
@@ -189,29 +184,18 @@ func (p *Poly) nttGeneric() {
 // by 2*Q.  The resulting coefficients are again in Montgomery representation
 // and bounded by 2*Q.
 func (p *Poly) invNttGeneric() {
-	k := 0 // Index into InvZetas
-
-	// We basically do the opposite of NTT, but postpone dividing by 2 in the
-	// inverse of the Cooley--Tukey butterfly and accumulate that to a big
-	// division by 2⁸ at the end.  See comments in the NTT() function.
-
-	for l := uint(1); l < N; l <<= 1 {
-		// On the n-th iteration of the l-loop, the coefficients start off
-		// bounded by 2ⁿ⁻¹*2*Q, so by 256*Q on the last.
-		for offset := uint(0); offset < N-l; offset += 2 * l {
-			zeta := uint64(InvZetas[k])
-			k++
-			for j := offset; j < offset+l; j++ {
-				t := p[j] // Gentleman--Sande butterfly
-				p[j] = t + p[j+l]
-				t += 256*Q - p[j+l]
-				p[j+l] = montReduceLe2Q(zeta * uint64(t))
-			}
-		}
-	}
-
-	for j := uint(0); j < N; j++ {
-		// ROver256 = 41978 = (256)⁻¹ R²
-		p[j] = montReduceLe2Q(ROver256 * uint64(p[j]))
-	}
+	_ = "STUB: not implemented"
+	// Index into InvZetas
+	return
 }
+
+// We basically do the opposite of NTT, but postpone dividing by 2 in the
+// inverse of the Cooley--Tukey butterfly and accumulate that to a big
+// division by 2⁸ at the end.  See comments in the NTT() function.
+
+// On the n-th iteration of the l-loop, the coefficients start off
+// bounded by 2ⁿ⁻¹*2*Q, so by 256*Q on the last.
+
+// Gentleman--Sande butterfly
+
+// ROver256 = 41978 = (256)⁻¹ R²

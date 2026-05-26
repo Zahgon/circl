@@ -17,7 +17,6 @@
 package dl
 
 import (
-	"encoding/binary"
 	"io"
 
 	"github.com/cloudflare/circl/group"
@@ -29,58 +28,19 @@ type Proof struct {
 }
 
 func calcChallenge(myGroup group.Group, G, V, A group.Element, userID, otherInfo []byte) group.Scalar {
+	_ = "STUB: not implemented"
 	// Hash transcript (G | V | A | UserID | OtherInfo) to get the random coin.
-	GByte, errByte := G.MarshalBinary()
-	if errByte != nil {
-		panic(errByte)
-	}
-	VByte, errByte := V.MarshalBinary()
-	if errByte != nil {
-		panic(errByte)
-	}
-	AByte, errByte := A.MarshalBinary()
-	if errByte != nil {
-		panic(errByte)
-	}
-
-	uPrefix := [4]byte{}
-	binary.BigEndian.PutUint32(uPrefix[:], uint32(len(userID)))
-	oPrefix := [4]byte{}
-	binary.BigEndian.PutUint32(oPrefix[:], uint32(len(otherInfo)))
-
-	hashByte := append(append(append(append(append(append(
-		GByte, VByte...), AByte...),
-		uPrefix[:]...), userID...),
-		oPrefix[:]...), otherInfo...)
-
-	return myGroup.HashToScalar(hashByte, otherInfo)
+	return *new(group.Scalar)
 }
 
 // Prove returns a proof attesting that kG = [k]G.
 func Prove(myGroup group.Group, G, kG group.Element, k group.Scalar, userID, otherInfo []byte, rnd io.Reader) Proof {
-	v := myGroup.RandomNonZeroScalar(rnd)
-	V := myGroup.NewElement()
-	V.Mul(G, v)
-
-	c := calcChallenge(myGroup, G, V, kG, userID, otherInfo)
-
-	r := myGroup.NewScalar()
-	r.Sub(v, myGroup.NewScalar().Mul(k, c))
-
-	return Proof{V, r}
+	_ = "STUB: not implemented"
+	return *new(Proof)
 }
 
 // Verify checks whether the proof attests that kG = [k]G.
 func Verify(myGroup group.Group, G, kG group.Element, p Proof, userID, otherInfo []byte) bool {
-	c := calcChallenge(myGroup, G, p.V, kG, userID, otherInfo)
-
-	rG := myGroup.NewElement()
-	rG.Mul(G, p.R)
-
-	ckG := myGroup.NewElement()
-	ckG.Mul(kG, c)
-
-	rG.Add(rG, ckG)
-
-	return p.V.IsEqual(rG)
+	_ = "STUB: not implemented"
+	return false
 }

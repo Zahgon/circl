@@ -2,22 +2,17 @@ package hpke
 
 import (
 	"crypto"
-	"crypto/aes"
 	"crypto/cipher"
 	"crypto/ecdh"
 	_ "crypto/sha256" // Linking sha256.
 	_ "crypto/sha512" // Linking sha512.
-	"fmt"
 	"hash"
-	"io"
 
 	"github.com/cloudflare/circl/dh/x25519"
 	"github.com/cloudflare/circl/dh/x448"
 	"github.com/cloudflare/circl/kem"
 	"github.com/cloudflare/circl/kem/kyber/kyber768"
 	"github.com/cloudflare/circl/kem/xwing"
-	"golang.org/x/crypto/chacha20poly1305"
-	"golang.org/x/crypto/hkdf"
 )
 
 type KEM uint16
@@ -44,43 +39,11 @@ const (
 )
 
 // IsValid returns true if the KEM identifier is supported by the HPKE package.
-func (k KEM) IsValid() bool {
-	switch k {
-	case KEM_P256_HKDF_SHA256,
-		KEM_P384_HKDF_SHA384,
-		KEM_P521_HKDF_SHA512,
-		KEM_X25519_HKDF_SHA256,
-		KEM_X448_HKDF_SHA512,
-		KEM_X25519_KYBER768_DRAFT00,
-		KEM_XWING:
-		return true
-	default:
-		return false
-	}
-}
+func (k KEM) IsValid() bool { _ = "STUB: not implemented"; return false }
 
 // Scheme returns an instance of a KEM that supports authentication. Panics if
 // the KEM identifier is invalid.
-func (k KEM) Scheme() kem.Scheme {
-	switch k {
-	case KEM_P256_HKDF_SHA256:
-		return dhkemp256hkdfsha256
-	case KEM_P384_HKDF_SHA384:
-		return dhkemp384hkdfsha384
-	case KEM_P521_HKDF_SHA512:
-		return dhkemp521hkdfsha512
-	case KEM_X25519_HKDF_SHA256:
-		return dhkemx25519hkdfsha256
-	case KEM_X448_HKDF_SHA512:
-		return dhkemx448hkdfsha512
-	case KEM_X25519_KYBER768_DRAFT00:
-		return hybridkemX25519Kyber768
-	case KEM_XWING:
-		return kemXwing
-	default:
-		panic(ErrInvalidKEM)
-	}
-}
+func (k KEM) Scheme() kem.Scheme { _ = "STUB: not implemented"; return *new(kem.Scheme) }
 
 type KDF uint16
 
@@ -94,36 +57,17 @@ const (
 	KDF_HKDF_SHA512 KDF = 0x03
 )
 
-func (k KDF) IsValid() bool {
-	switch k {
-	case KDF_HKDF_SHA256,
-		KDF_HKDF_SHA384,
-		KDF_HKDF_SHA512:
-		return true
-	default:
-		return false
-	}
-}
+func (k KDF) IsValid() bool { _ = "STUB: not implemented"; return false }
 
 // ExtractSize returns the size (in bytes) of the pseudorandom key produced
 // by KDF.Extract.
-func (k KDF) ExtractSize() int {
-	switch k {
-	case KDF_HKDF_SHA256:
-		return crypto.SHA256.Size()
-	case KDF_HKDF_SHA384:
-		return crypto.SHA384.Size()
-	case KDF_HKDF_SHA512:
-		return crypto.SHA512.Size()
-	default:
-		panic(ErrInvalidKDF)
-	}
-}
+func (k KDF) ExtractSize() int { _ = "STUB: not implemented"; return 0 }
 
 // Extract derives a pseudorandom key from a high-entropy, secret input and a
 // salt. The size of the output is determined by KDF.ExtractSize.
 func (k KDF) Extract(secret, salt []byte) (pseudorandomKey []byte) {
-	return hkdf.Extract(k.hash(), secret, salt)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Expand derives a variable length pseudorandom string from a pseudorandom key
@@ -131,35 +75,11 @@ func (k KDF) Extract(secret, salt []byte) (pseudorandomKey []byte) {
 // than N bytes, or if the output length is greater than 255*N bytes,
 // where N is the size returned by KDF.Extract function.
 func (k KDF) Expand(pseudorandomKey, info []byte, outputLen uint) []byte {
-	extractSize := k.ExtractSize()
-	if len(pseudorandomKey) < extractSize {
-		panic(fmt.Errorf("pseudorandom key must be %v bytes", extractSize))
-	}
-	maxLength := uint(255 * extractSize)
-	if outputLen > maxLength {
-		panic(fmt.Errorf("output length must be less than %v bytes", maxLength))
-	}
-	output := make([]byte, outputLen)
-	rd := hkdf.Expand(k.hash(), pseudorandomKey[:extractSize], info)
-	_, err := io.ReadFull(rd, output)
-	if err != nil {
-		panic(err)
-	}
-	return output
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (k KDF) hash() func() hash.Hash {
-	switch k {
-	case KDF_HKDF_SHA256:
-		return crypto.SHA256.New
-	case KDF_HKDF_SHA384:
-		return crypto.SHA384.New
-	case KDF_HKDF_SHA512:
-		return crypto.SHA512.New
-	default:
-		panic(ErrInvalidKDF)
-	}
-}
+func (k KDF) hash() func() hash.Hash { _ = "STUB: not implemented"; return nil }
 
 type AEAD uint16
 
@@ -176,67 +96,21 @@ const (
 // New instantiates an AEAD cipher from the identifier, returns an error if the
 // identifier is not known.
 func (a AEAD) New(key []byte) (cipher.AEAD, error) {
-	switch a {
-	case AEAD_AES128GCM, AEAD_AES256GCM:
-		block, err := aes.NewCipher(key)
-		if err != nil {
-			return nil, err
-		}
-		return cipher.NewGCM(block)
-	case AEAD_ChaCha20Poly1305:
-		return chacha20poly1305.New(key)
-	default:
-		panic(ErrInvalidAEAD)
-	}
+	_ = "STUB: not implemented"
+	return *new(cipher.AEAD), nil
 }
 
-func (a AEAD) IsValid() bool {
-	switch a {
-	case AEAD_AES128GCM,
-		AEAD_AES256GCM,
-		AEAD_ChaCha20Poly1305:
-		return true
-	default:
-		return false
-	}
-}
+func (a AEAD) IsValid() bool { _ = "STUB: not implemented"; return false }
 
 // KeySize returns the size in bytes of the keys used by the AEAD cipher.
-func (a AEAD) KeySize() uint {
-	switch a {
-	case AEAD_AES128GCM:
-		return 16
-	case AEAD_AES256GCM:
-		return 32
-	case AEAD_ChaCha20Poly1305:
-		return chacha20poly1305.KeySize
-	default:
-		panic(ErrInvalidAEAD)
-	}
-}
+func (a AEAD) KeySize() uint { _ = "STUB: not implemented"; return 0 }
 
 // NonceSize returns the size in bytes of the nonce used by the AEAD cipher.
-func (a AEAD) NonceSize() uint {
-	switch a {
-	case AEAD_AES128GCM,
-		AEAD_AES256GCM,
-		AEAD_ChaCha20Poly1305:
-		return 12
-	default:
-		panic(ErrInvalidAEAD)
-	}
-}
+func (a AEAD) NonceSize() uint { _ = "STUB: not implemented"; return 0 }
 
 // CipherLen returns the length of a ciphertext corresponding to a message of
 // length mLen.
-func (a AEAD) CipherLen(mLen uint) uint {
-	switch a {
-	case AEAD_AES128GCM, AEAD_AES256GCM, AEAD_ChaCha20Poly1305:
-		return mLen + 16
-	default:
-		panic(ErrInvalidAEAD)
-	}
-}
+func (a AEAD) CipherLen(mLen uint) uint { _ = "STUB: not implemented"; return 0 }
 
 var (
 	dhkemp256hkdfsha256, dhkemp384hkdfsha384, dhkemp521hkdfsha512 shortKEM

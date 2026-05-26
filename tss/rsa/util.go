@@ -5,8 +5,7 @@ import (
 )
 
 func calculateDelta(l int64) *big.Int {
+	_ = "STUB: not implemented"
 	// ∆ = l!
-	delta := big.Int{}
-	delta.MulRange(1, l)
-	return &delta
+	return nil
 }

@@ -6,14 +6,6 @@
 //   - https://eprint.iacr.org/2013/158
 package mlsbset
 
-import (
-	"errors"
-	"fmt"
-	"math/big"
-
-	"github.com/cloudflare/circl/internal/conv"
-)
-
 // EltG is a group element.
 type EltG interface{}
 
@@ -44,79 +36,31 @@ type Params struct {
 type Encoder struct{ p Params }
 
 // New produces an encoder of the MLSBSet algorithm.
-func New(t, v, w uint) (Encoder, error) {
-	if !(t > 1 && v >= 1 && w >= 2) {
-		return Encoder{}, errors.New("t>1, v>=1, w>=2")
-	}
-	e := (t + w*v - 1) / (w * v)
-	d := e * v
-	l := d * w
-	return Encoder{Params{t, v, w, e, d, l}}, nil
-}
+func New(t, v, w uint) (Encoder, error) { _ = "STUB: not implemented"; return *new(Encoder), nil }
 
 // Encode converts an odd integer k into a valid power for exponentiation.
-func (m Encoder) Encode(k []byte) (*Power, error) {
-	if len(k) == 0 {
-		return nil, errors.New("empty slice")
-	}
-	if !(len(k) <= int(m.p.L+7)>>3) {
-		return nil, errors.New("k too big")
-	}
-	if k[0]%2 == 0 {
-		return nil, errors.New("k must be odd")
-	}
-	ap := int((m.p.L+7)/8) - len(k)
-	k = append(k, make([]byte, ap)...)
-	s := m.signs(k)
-	b := make([]int32, m.p.L-m.p.D)
-	c := conv.BytesLe2BigInt(k)
-	c.Rsh(c, m.p.D)
-	var bi big.Int
-	for i := m.p.D; i < m.p.L; i++ {
-		c0 := int32(c.Bit(0))
-		b[i-m.p.D] = s[i%m.p.D] * c0
-		bi.SetInt64(int64(b[i-m.p.D] >> 1))
-		c.Rsh(c, 1)
-		c.Sub(c, &bi)
-	}
-	carry := int(c.Int64())
-	return &Power{m, s, b, carry}, nil
-}
+func (m Encoder) Encode(k []byte) (*Power, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // signs calculates the set of signs.
-func (m Encoder) signs(k []byte) []int32 {
-	s := make([]int32, m.p.D)
-	s[m.p.D-1] = 1
-	for i := uint(1); i < m.p.D; i++ {
-		ki := int32((k[i>>3] >> (i & 0x7)) & 0x1)
-		s[i-1] = 2*ki - 1
-	}
-	return s
-}
+func (m Encoder) signs(k []byte) []int32 { _ = "STUB: not implemented"; return nil }
 
 // GetParams returns the complementary parameters of the encoding.
-func (m Encoder) GetParams() Params { return m.p }
+func (m Encoder) GetParams() Params {
+	_ = "STUB: not implemented"
 
-// tableSize returns the size of each table.
-func (m Encoder) tableSize() uint { return 1 << (m.p.W - 1) }
+	// tableSize returns the size of each table.
+	return *new(Params)
+}
+
+func (m Encoder) tableSize() uint { _ = "STUB: not implemented"; return 0 }
 
 // Elts returns the total number of elements that must be precomputed.
-func (m Encoder) Elts() uint { return m.p.V * m.tableSize() }
+func (m Encoder) Elts() uint { _ = "STUB: not implemented"; return 0 }
 
 // IsExtended returns true if the element x^(2^(wd)) must be calculated.
-func (m Encoder) IsExtended() bool { q := m.p.T / (m.p.V * m.p.W); return m.p.T == q*m.p.V*m.p.W }
+func (m Encoder) IsExtended() bool { _ = "STUB: not implemented"; return false }
 
 // Ops returns the number of squares and multiplications executed during an exponentiation.
-func (m Encoder) Ops() (S uint, M uint) {
-	S = m.p.E
-	M = m.p.E * m.p.V
-	if m.IsExtended() {
-		M++
-	}
-	return
-}
+func (m Encoder) Ops() (S uint, M uint) { _ = "STUB: not implemented"; return 0, 0 }
 
-func (m Encoder) String() string {
-	return fmt.Sprintf("T: %v W: %v V: %v e: %v d: %v l: %v wv|t: %v",
-		m.p.T, m.p.W, m.p.V, m.p.E, m.p.D, m.p.L, m.IsExtended())
-}
+func (m Encoder) String() string { _ = "STUB: not implemented"; return "" }

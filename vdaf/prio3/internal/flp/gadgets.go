@@ -4,7 +4,6 @@ import (
 	"github.com/cloudflare/circl/vdaf/prio3/arith"
 	"github.com/cloudflare/circl/vdaf/prio3/arith/fp128"
 	"github.com/cloudflare/circl/vdaf/prio3/arith/fp64"
-	"github.com/cloudflare/circl/vdaf/prio3/internal/cursor"
 )
 
 type Gadget[
@@ -22,73 +21,45 @@ type Gadget[
 
 type gadgetMul struct{}
 
-func (gadgetMul) Arity() uint  { return 2 }
-func (gadgetMul) Degree() uint { return 2 }
+func (gadgetMul) Arity() uint  { _ = "STUB: not implemented"; return 0 }
+func (gadgetMul) Degree() uint { _ = "STUB: not implemented"; return 0 }
 
 type GadgetMulFp64 struct{ gadgetMul }
 
-func (GadgetMulFp64) Eval(out *fp64.Fp, in fp64.Vec) {
-	out.Mul(&in[0], &in[1])
-}
+func (GadgetMulFp64) Eval(out *fp64.Fp, in fp64.Vec) { _ = "STUB: not implemented"; return }
 
-func (GadgetMulFp64) EvalPoly(out fp64.Poly, in []fp64.Poly) {
-	out.Mul(in[0], in[1])
-}
+func (GadgetMulFp64) EvalPoly(out fp64.Poly, in []fp64.Poly) { _ = "STUB: not implemented"; return }
 
 type gadgetMulFp128 struct{ gadgetMul }
 
-func (gadgetMulFp128) Eval(out *fp128.Fp, in fp128.Vec) {
-	out.Mul(&in[0], &in[1])
-}
+func (gadgetMulFp128) Eval(out *fp128.Fp, in fp128.Vec) { _ = "STUB: not implemented"; return }
 
-func (gadgetMulFp128) EvalPoly(out fp128.Poly, in []fp128.Poly) {
-	out.Mul(in[0], in[1])
-}
+func (gadgetMulFp128) EvalPoly(out fp128.Poly, in []fp128.Poly) { _ = "STUB: not implemented"; return }
 
 // PolyEval gadget for p(x) = x^2-x.
 type GadgetPolyEvalx2x struct{}
 
-func (GadgetPolyEvalx2x) Arity() uint  { return 1 }
-func (GadgetPolyEvalx2x) Degree() uint { return 2 }
-func (GadgetPolyEvalx2x) Eval(out *fp64.Fp, in fp64.Vec) {
-	out.Sqr(&in[0])
-	out.SubAssign(&in[0])
-}
+func (GadgetPolyEvalx2x) Arity() uint                    { _ = "STUB: not implemented"; return 0 }
+func (GadgetPolyEvalx2x) Degree() uint                   { _ = "STUB: not implemented"; return 0 }
+func (GadgetPolyEvalx2x) Eval(out *fp64.Fp, in fp64.Vec) { _ = "STUB: not implemented"; return }
 
-func (GadgetPolyEvalx2x) EvalPoly(out fp64.Poly, in []fp64.Poly) {
-	out.Sqr(in[0])
-	outShort := out[:len(in[0])]
-	outShort.SubAssign(in[0])
-	out.Strip()
-}
+func (GadgetPolyEvalx2x) EvalPoly(out fp64.Poly, in []fp64.Poly) { _ = "STUB: not implemented"; return }
 
 type GadgetParallelSumInnerMul struct {
 	inner gadgetMulFp128
 	Count uint
 }
 
-func (g GadgetParallelSumInnerMul) Arity() uint  { return g.inner.Arity() * g.Count }
-func (g GadgetParallelSumInnerMul) Degree() uint { return g.inner.Degree() }
+func (g GadgetParallelSumInnerMul) Arity() uint  { _ = "STUB: not implemented"; return 0 }
+func (g GadgetParallelSumInnerMul) Degree() uint { _ = "STUB: not implemented"; return 0 }
 func (g GadgetParallelSumInnerMul) Eval(out *fp128.Fp, in fp128.Vec) {
-	inCur := cursor.New(in)
-	arity := g.inner.Arity()
-	var e fp128.Fp
-	for range g.Count {
-		g.inner.Eval(&e, inCur.Next(arity))
-		out.AddAssign(&e)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (g GadgetParallelSumInnerMul) EvalPoly(out fp128.Poly, in []fp128.Poly) {
-	inCur := cursor.New(in)
-	arity := g.inner.Arity()
-	e := arith.NewPoly[fp128.Poly](uint(len(out) - 1))
-	for range g.Count {
-		g.inner.EvalPoly(e, inCur.Next(arity))
-		out.AddAssign(e)
-	}
-
-	out.Strip()
+	_ = "STUB: not implemented"
+	return
 }
 
 type wrapperGadget[
@@ -101,16 +72,10 @@ type wrapperGadget[
 	k        uint
 }
 
-func (g *wrapperGadget[G, P, V, E, F]) Arity() uint            { return g.inner.Arity() }
-func (g *wrapperGadget[G, P, V, E, F]) Degree() uint           { return g.inner.Degree() }
-func (g *wrapperGadget[G, P, V, E, F]) EvalPoly(out P, in []P) { g.inner.EvalPoly(out, in) }
-func (g *wrapperGadget[G, P, V, E, F]) eval(input V) {
-	g.k++
-	wiresCur := cursor.New(g.wires)
-	for i := range input {
-		wiresCur.Next(g.p)[g.k] = input[i]
-	}
-}
+func (g *wrapperGadget[G, P, V, E, F]) Arity() uint            { _ = "STUB: not implemented"; return 0 }
+func (g *wrapperGadget[G, P, V, E, F]) Degree() uint           { _ = "STUB: not implemented"; return 0 }
+func (g *wrapperGadget[G, P, V, E, F]) EvalPoly(out P, in []P) { _ = "STUB: not implemented"; return }
+func (g *wrapperGadget[G, P, V, E, F]) eval(input V)           { _ = "STUB: not implemented"; return }
 
 type ProveGadget[
 	G Gadget[P, V, E, F],
@@ -119,10 +84,7 @@ type ProveGadget[
 	wrapperGadget[G, P, V, E, F]
 }
 
-func (g *ProveGadget[G, P, V, E, F]) Eval(out *E, input V) {
-	g.wrapperGadget.eval(input)
-	g.inner.Eval(out, input)
-}
+func (g *ProveGadget[G, P, V, E, F]) Eval(out *E, input V) { _ = "STUB: not implemented"; return }
 
 type QueryGadget[
 	G Gadget[P, V, E, F],
@@ -133,8 +95,4 @@ type QueryGadget[
 	wrapperGadget[G, P, V, E, F]
 }
 
-func (g *QueryGadget[G, P, V, E, F]) Eval(out *E, input V) {
-	g.wrapperGadget.eval(input)
-	F(&g.alphaK).MulAssign(&g.alpha)
-	*out = g.poly.Evaluate(&g.alphaK)
-}
+func (g *QueryGadget[G, P, V, E, F]) Eval(out *E, input V) { _ = "STUB: not implemented"; return }

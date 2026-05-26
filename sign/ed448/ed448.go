@@ -24,17 +24,10 @@
 package ed448
 
 import (
-	"bytes"
 	"crypto"
-	cryptoRand "crypto/rand"
-	"crypto/subtle"
-	"errors"
-	"fmt"
 	"io"
-	"strconv"
 
 	"github.com/cloudflare/circl/ecc/goldilocks"
-	"github.com/cloudflare/circl/internal/sha3"
 	"github.com/cloudflare/circl/sign"
 )
 
@@ -82,50 +75,37 @@ const (
 type PublicKey []byte
 
 // Equal reports whether pub and x have the same value.
-func (pub PublicKey) Equal(x crypto.PublicKey) bool {
-	xx, ok := x.(PublicKey)
-	return ok && bytes.Equal(pub, xx)
-}
+func (pub PublicKey) Equal(x crypto.PublicKey) bool { _ = "STUB: not implemented"; return false }
 
 // PrivateKey is the type of Ed448 private keys. It implements crypto.Signer.
 type PrivateKey []byte
 
 // Equal reports whether priv and x have the same value.
-func (priv PrivateKey) Equal(x crypto.PrivateKey) bool {
-	xx, ok := x.(PrivateKey)
-	return ok && subtle.ConstantTimeCompare(priv, xx) == 1
-}
+func (priv PrivateKey) Equal(x crypto.PrivateKey) bool { _ = "STUB: not implemented"; return false }
 
 // Public returns the PublicKey corresponding to priv.
 func (priv PrivateKey) Public() crypto.PublicKey {
-	publicKey := make([]byte, PublicKeySize)
-	copy(publicKey, priv[SeedSize:])
-	return PublicKey(publicKey)
+	_ = "STUB: not implemented"
+	return *new(crypto.PublicKey)
 }
 
 // Seed returns the private key seed corresponding to priv. It is provided for
 // interoperability with RFC 8032. RFC 8032's private keys correspond to seeds
 // in this package.
-func (priv PrivateKey) Seed() []byte {
-	seed := make([]byte, SeedSize)
-	copy(seed, priv[:SeedSize])
-	return seed
-}
+func (priv PrivateKey) Seed() []byte { _ = "STUB: not implemented"; return nil }
 
-func (priv PrivateKey) Scheme() sign.Scheme { return sch }
+func (priv PrivateKey) Scheme() sign.Scheme { _ = "STUB: not implemented"; return *new(sign.Scheme) }
 
-func (pub PublicKey) Scheme() sign.Scheme { return sch }
+func (pub PublicKey) Scheme() sign.Scheme { _ = "STUB: not implemented"; return *new(sign.Scheme) }
 
 func (priv PrivateKey) MarshalBinary() (data []byte, err error) {
-	privateKey := make(PrivateKey, PrivateKeySize)
-	copy(privateKey, priv)
-	return privateKey, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (pub PublicKey) MarshalBinary() (data []byte, err error) {
-	publicKey := make(PublicKey, PublicKeySize)
-	copy(publicKey, pub)
-	return publicKey, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Sign creates a signature of a message given a key pair.
@@ -141,143 +121,49 @@ func (priv PrivateKey) Sign(
 	message []byte,
 	opts crypto.SignerOpts,
 ) (signature []byte, err error) {
-	var ctx string
-	var scheme SchemeID
-
-	if o, ok := opts.(SignerOptions); ok {
-		ctx = o.Context
-		scheme = o.Scheme
-	}
-
-	switch true {
-	case scheme == ED448 && opts.HashFunc() == crypto.Hash(0):
-		return Sign(priv, message, ctx), nil
-	case scheme == ED448Ph && opts.HashFunc() == crypto.Hash(0):
-		return SignPh(priv, message, ctx), nil
-	default:
-		return nil, errors.New("ed448: bad hash algorithm")
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // GenerateKey generates a public/private key pair using entropy from rand.
 // If rand is nil, crypto/rand.Reader will be used.
 func GenerateKey(rand io.Reader) (PublicKey, PrivateKey, error) {
-	if rand == nil {
-		rand = cryptoRand.Reader
-	}
-
-	seed := make(PrivateKey, SeedSize)
-	if _, err := io.ReadFull(rand, seed); err != nil {
-		return nil, nil, err
-	}
-
-	privateKey := NewKeyFromSeed(seed)
-	publicKey := make([]byte, PublicKeySize)
-	copy(publicKey, privateKey[SeedSize:])
-
-	return publicKey, privateKey, nil
+	_ = "STUB: not implemented"
+	return *new(PublicKey), *new(PrivateKey), nil
 }
 
 // NewKeyFromSeed calculates a private key from a seed. It will panic if
 // len(seed) is not SeedSize. This function is provided for interoperability
 // with RFC 8032. RFC 8032's private keys correspond to seeds in this
 // package.
-func NewKeyFromSeed(seed []byte) PrivateKey {
-	privateKey := make([]byte, PrivateKeySize)
-	newKeyFromSeed(privateKey, seed)
-	return privateKey
-}
+func NewKeyFromSeed(seed []byte) PrivateKey { _ = "STUB: not implemented"; return *new(PrivateKey) }
 
-func newKeyFromSeed(privateKey, seed []byte) {
-	if l := len(seed); l != SeedSize {
-		panic("ed448: bad seed length: " + strconv.Itoa(l))
-	}
-
-	var h [hashSize]byte
-	H := sha3.NewShake256()
-	_, _ = H.Write(seed)
-	_, _ = H.Read(h[:])
-	s := &goldilocks.Scalar{}
-	deriveSecretScalar(s, h[:paramB])
-
-	copy(privateKey[:SeedSize], seed)
-	_ = goldilocks.Curve{}.ScalarBaseMult(s).ToBytes(privateKey[SeedSize:])
-}
+func newKeyFromSeed(privateKey, seed []byte) { _ = "STUB: not implemented"; return }
 
 func signAll(signature []byte, privateKey PrivateKey, message, ctx []byte, preHash bool) {
-	if len(ctx) > ContextMaxSize {
-		panic(fmt.Errorf("ed448: bad context length: %v", len(ctx)))
-	}
-
-	H := sha3.NewShake256()
-	var PHM []byte
-
-	if preHash {
-		var h [64]byte
-		_, _ = H.Write(message)
-		_, _ = H.Read(h[:])
-		PHM = h[:]
-		H.Reset()
-	} else {
-		PHM = message
-	}
-
-	// 1.  Hash the 57-byte private key using SHAKE256(x, 114).
-	var h [hashSize]byte
-	_, _ = H.Write(privateKey[:SeedSize])
-	_, _ = H.Read(h[:])
-	s := &goldilocks.Scalar{}
-	deriveSecretScalar(s, h[:paramB])
-	prefix := h[paramB:]
-
-	// 2.  Compute SHAKE256(dom4(F, C) || prefix || PH(M), 114).
-	var rPM [hashSize]byte
-	H.Reset()
-
-	writeDom(&H, ctx, preHash)
-
-	_, _ = H.Write(prefix)
-	_, _ = H.Write(PHM)
-	_, _ = H.Read(rPM[:])
-
-	// 3.  Compute the point [r]B.
-	r := &goldilocks.Scalar{}
-	r.FromBytes(rPM[:])
-	R := (&[paramB]byte{})[:]
-	if err := (goldilocks.Curve{}.ScalarBaseMult(r).ToBytes(R)); err != nil {
-		panic(err)
-	}
-	// 4.  Compute SHAKE256(dom4(F, C) || R || A || PH(M), 114)
-	var hRAM [hashSize]byte
-	H.Reset()
-
-	writeDom(&H, ctx, preHash)
-
-	_, _ = H.Write(R)
-	_, _ = H.Write(privateKey[SeedSize:])
-	_, _ = H.Write(PHM)
-	_, _ = H.Read(hRAM[:])
-
-	// 5.  Compute S = (r + k * s) mod order.
-	k := &goldilocks.Scalar{}
-	k.FromBytes(hRAM[:])
-	S := &goldilocks.Scalar{}
-	S.Mul(k, s)
-	S.Add(S, r)
-
-	// 6.  The signature is the concatenation of R and S.
-	copy(signature[:paramB], R[:])
-	copy(signature[paramB:], S[:])
+	_ = "STUB: not implemented"
+	return
 }
+
+// 1.  Hash the 57-byte private key using SHAKE256(x, 114).
+
+// 2.  Compute SHAKE256(dom4(F, C) || prefix || PH(M), 114).
+
+// 3.  Compute the point [r]B.
+
+// 4.  Compute SHAKE256(dom4(F, C) || R || A || PH(M), 114)
+
+// 5.  Compute S = (r + k * s) mod order.
+
+// 6.  The signature is the concatenation of R and S.
 
 // Sign signs the message with privateKey and returns a signature.
 // This function supports the signature variant defined in RFC-8032: Ed448,
 // also known as the pure version of EdDSA.
 // It will panic if len(privateKey) is not PrivateKeySize.
 func Sign(priv PrivateKey, message []byte, ctx string) []byte {
-	signature := make([]byte, SignatureSize)
-	signAll(signature, priv, message, []byte(ctx), false)
-	return signature
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // SignPh creates a signature of a message given a keypair.
@@ -286,56 +172,13 @@ func Sign(priv PrivateKey, message []byte, ctx string) []byte {
 // Context could be passed to this function, which length should be no more than
 // 255. It can be empty.
 func SignPh(priv PrivateKey, message []byte, ctx string) []byte {
-	signature := make([]byte, SignatureSize)
-	signAll(signature, priv, message, []byte(ctx), true)
-	return signature
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func verify(public PublicKey, message, signature, ctx []byte, preHash bool) bool {
-	if len(public) != PublicKeySize ||
-		len(signature) != SignatureSize ||
-		len(ctx) > ContextMaxSize ||
-		!isLessThanOrder(signature[paramB:]) {
-		return false
-	}
-
-	P, err := goldilocks.FromBytes(public)
-	if err != nil {
-		return false
-	}
-
-	H := sha3.NewShake256()
-	var PHM []byte
-
-	if preHash {
-		var h [64]byte
-		_, _ = H.Write(message)
-		_, _ = H.Read(h[:])
-		PHM = h[:]
-		H.Reset()
-	} else {
-		PHM = message
-	}
-
-	var hRAM [hashSize]byte
-	R := signature[:paramB]
-
-	writeDom(&H, ctx, preHash)
-
-	_, _ = H.Write(R)
-	_, _ = H.Write(public)
-	_, _ = H.Write(PHM)
-	_, _ = H.Read(hRAM[:])
-
-	k := &goldilocks.Scalar{}
-	k.FromBytes(hRAM[:])
-	S := &goldilocks.Scalar{}
-	S.FromBytes(signature[paramB:])
-
-	encR := (&[paramB]byte{})[:]
-	P.Neg()
-	_ = goldilocks.Curve{}.CombinedMult(S, k, P).ToBytes(encR)
-	return bytes.Equal(R, encR)
+	_ = "STUB: not implemented"
+	return false
 }
 
 // VerifyAny returns true if the signature is valid. Failure cases are invalid
@@ -346,21 +189,8 @@ func verify(public PublicKey, message, signature, ctx []byte, preHash bool) bool
 // crypto.Hash(0) as the value for opts.
 // Use a SignerOptions struct to pass a context string for signing.
 func VerifyAny(public PublicKey, message, signature []byte, opts crypto.SignerOpts) bool {
-	var ctx string
-	var scheme SchemeID
-	if o, ok := opts.(SignerOptions); ok {
-		ctx = o.Context
-		scheme = o.Scheme
-	}
-
-	switch true {
-	case scheme == ED448 && opts.HashFunc() == crypto.Hash(0):
-		return Verify(public, message, signature, ctx)
-	case scheme == ED448Ph && opts.HashFunc() == crypto.Hash(0):
-		return VerifyPh(public, message, signature, ctx)
-	default:
-		return false
-	}
+	_ = "STUB: not implemented"
+	return false
 }
 
 // Verify returns true if the signature is valid. Failure cases are invalid
@@ -368,7 +198,8 @@ func VerifyAny(public PublicKey, message, signature []byte, opts crypto.SignerOp
 // This function supports the signature variant defined in RFC-8032: Ed448,
 // also known as the pure version of EdDSA.
 func Verify(public PublicKey, message, signature []byte, ctx string) bool {
-	return verify(public, message, signature, []byte(ctx), false)
+	_ = "STUB: not implemented"
+	return false
 }
 
 // VerifyPh returns true if the signature is valid. Failure cases are invalid
@@ -378,34 +209,20 @@ func Verify(public PublicKey, message, signature []byte, ctx string) bool {
 // Context could be passed to this function, which length should be no more than
 // 255. It can be empty.
 func VerifyPh(public PublicKey, message, signature []byte, ctx string) bool {
-	return verify(public, message, signature, []byte(ctx), true)
+	_ = "STUB: not implemented"
+	return false
 }
 
 func deriveSecretScalar(s *goldilocks.Scalar, h []byte) {
-	h[0] &= 0xFC        // The two least significant bits of the first octet are cleared,
-	h[paramB-1] = 0x00  // all eight bits the last octet are cleared, and
-	h[paramB-2] |= 0x80 // the highest bit of the second to last octet is set.
-	s.FromBytes(h[:paramB])
+	_ = "STUB: not implemented"
+	// The two least significant bits of the first octet are cleared,
+	return
 }
+
+// all eight bits the last octet are cleared, and
+// the highest bit of the second to last octet is set.
 
 // isLessThanOrder returns true if 0 <= x < order and if the last byte of x is zero.
-func isLessThanOrder(x []byte) bool {
-	order := goldilocks.Curve{}.Order()
-	i := len(order) - 1
-	for i > 0 && x[i] == order[i] {
-		i--
-	}
-	return x[paramB-1] == 0 && x[i] < order[i]
-}
+func isLessThanOrder(x []byte) bool { _ = "STUB: not implemented"; return false }
 
-func writeDom(h io.Writer, ctx []byte, preHash bool) {
-	dom4 := "SigEd448"
-	_, _ = h.Write([]byte(dom4))
-
-	if preHash {
-		_, _ = h.Write([]byte{byte(0x01), byte(len(ctx))})
-	} else {
-		_, _ = h.Write([]byte{byte(0x00), byte(len(ctx))})
-	}
-	_, _ = h.Write(ctx)
-}
+func writeDom(h io.Writer, ctx []byte, preHash bool) { _ = "STUB: not implemented"; return }

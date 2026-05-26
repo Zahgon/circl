@@ -18,10 +18,6 @@ package keccakf1600
 
 import (
 	"runtime"
-	"unsafe"
-
-	"github.com/cloudflare/circl/internal/sha3"
-	"golang.org/x/sys/cpu"
 )
 
 // StateX4 contains state for the four-way permutation including the four
@@ -64,97 +60,57 @@ type StateX2 struct {
 
 // IsEnabledX4 returns true if the architecture supports a four-way SIMD
 // implementation provided in this package.
-func IsEnabledX4() bool { return cpu.X86.HasAVX2 }
+func IsEnabledX4() bool { _ = "STUB: not implemented"; return false }
 
 // IsEnabledX2 returns true if the architecture supports a two-way SIMD
 // implementation provided in this package.
-func IsEnabledX2() bool { return enabledX2 }
+func IsEnabledX2() bool {
+	_ = "STUB: not implemented"
 
-// Initialize the state and returns the buffer on which the four permutations
-// will act: a uint64 slice of length 100.  The first permutation will act
-// on {a[0], a[4], ..., a[96]}, the second on {a[1], a[5], ..., a[97]}, etc.
-// If turbo is true, applies 12-round variant instead of the usual 24.
-func (s *StateX4) Initialize(turbo bool) []uint64 {
-	s.turbo = turbo
-	rp := unsafe.Pointer(&s.a[0]) //nolint:gosec
-
-	// uint64s are always aligned by a multiple of 8.  Compute the remainder
-	// of the address modulo 32 divided by 8.
-	rem := (int(uintptr(rp)&31) >> 3)
-
-	if rem != 0 {
-		s.offset = 4 - rem
-	}
-
-	// The slice we return will be aligned on 32 byte boundary.
-	return s.a[s.offset : s.offset+100]
+	// Initialize the state and returns the buffer on which the four permutations
+	// will act: a uint64 slice of length 100.  The first permutation will act
+	// on {a[0], a[4], ..., a[96]}, the second on {a[1], a[5], ..., a[97]}, etc.
+	// If turbo is true, applies 12-round variant instead of the usual 24.
+	return false
 }
+
+func (s *StateX4) Initialize(turbo bool) []uint64 { _ = "STUB: not implemented"; return nil }
+
+//nolint:gosec
+
+// uint64s are always aligned by a multiple of 8.  Compute the remainder
+// of the address modulo 32 divided by 8.
+
+// The slice we return will be aligned on 32 byte boundary.
 
 // Initialize the state and returns the buffer on which the two permutations
 // will act: a uint64 slice of length 50.  The first permutation will act
 // on {a[0], a[2], ..., a[48]} and the second on {a[1], a[3], ..., a[49]}.
 // If turbo is true, applies 12-round variant instead of the usual 24.
-func (s *StateX2) Initialize(turbo bool) []uint64 {
-	s.turbo = turbo
-	rp := unsafe.Pointer(&s.a[0]) //nolint:gosec
+func (s *StateX2) Initialize(turbo bool) []uint64 { _ = "STUB: not implemented"; return nil }
 
-	// uint64s are always aligned by a multiple of 8.  Compute the remainder
-	// of the address modulo 32 divided by 8.
-	rem := (int(uintptr(rp)&31) >> 3)
+//nolint:gosec
 
-	if rem != 0 {
-		s.offset = 4 - rem
-	}
+// uint64s are always aligned by a multiple of 8.  Compute the remainder
+// of the address modulo 32 divided by 8.
 
-	// The slice we return will be aligned on 32 byte boundary.
-	return s.a[s.offset : s.offset+50]
-}
+// The slice we return will be aligned on 32 byte boundary.
 
 // Permute performs the four parallel Keccak-f[1600]s interleaved on the slice
 // returned from Initialize().
-func (s *StateX4) Permute() {
-	if IsEnabledX4() {
-		permuteSIMDx4(s.a[s.offset:], s.turbo)
-	} else {
-		permuteScalarX4(s.a[s.offset:], s.turbo) // A slower generic implementation.
-	}
-}
+func (s *StateX4) Permute() { _ = "STUB: not implemented"; return }
+
+// A slower generic implementation.
 
 // Permute performs the two parallel Keccak-f[1600]s interleaved on the slice
 // returned from Initialize().
-func (s *StateX2) Permute() {
-	if IsEnabledX2() {
-		permuteSIMDx2(s.a[s.offset:], s.turbo)
-	} else {
-		permuteScalarX2(s.a[s.offset:], s.turbo) // A slower generic implementation.
-	}
-}
+func (s *StateX2) Permute() { _ = "STUB: not implemented"; return }
 
-func permuteScalarX4(a []uint64, turbo bool) {
-	var buf [25]uint64
-	for i := 0; i < 4; i++ {
-		for j := 0; j < 25; j++ {
-			buf[j] = a[4*j+i]
-		}
-		sha3.KeccakF1600(&buf, turbo)
-		for j := 0; j < 25; j++ {
-			a[4*j+i] = buf[j]
-		}
-	}
-}
+// A slower generic implementation.
 
-func permuteScalarX2(a []uint64, turbo bool) {
-	var buf [25]uint64
-	for i := 0; i < 2; i++ {
-		for j := 0; j < 25; j++ {
-			buf[j] = a[2*j+i]
-		}
-		sha3.KeccakF1600(&buf, turbo)
-		for j := 0; j < 25; j++ {
-			a[2*j+i] = buf[j]
-		}
-	}
-}
+func permuteScalarX4(a []uint64, turbo bool) { _ = "STUB: not implemented"; return }
+
+func permuteScalarX2(a []uint64, turbo bool) { _ = "STUB: not implemented"; return }
 
 var enabledX2 bool
 

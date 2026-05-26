@@ -2,7 +2,6 @@
 package histogram
 
 import (
-	"github.com/cloudflare/circl/vdaf/prio3/arith"
 	"github.com/cloudflare/circl/vdaf/prio3/arith/fp128"
 	"github.com/cloudflare/circl/vdaf/prio3/internal/flp"
 	"github.com/cloudflare/circl/vdaf/prio3/internal/prio3"
@@ -32,21 +31,16 @@ type Histogram struct {
 }
 
 func New(numShares uint8, length, chunkLen uint, context []byte) (h *Histogram, err error) {
-	const histogramID = 4
-	h = new(Histogram)
-	h.p, err = prio3.New(newFlpHistogram(length, chunkLen), histogramID, numShares, context)
-	if err != nil {
-		return nil, err
-	}
-
-	return h, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (h *Histogram) Params() prio3.Params { return h.p.Params() }
+func (h *Histogram) Params() prio3.Params { _ = "STUB: not implemented"; return *new(prio3.Params) }
 
 func (h *Histogram) Shard(measurement uint64, nonce *Nonce, rand []byte,
 ) (PublicShare, []InputShare, error) {
-	return h.p.Shard(measurement, nonce, rand)
+	_ = "STUB: not implemented"
+	return *new(PublicShare), nil, nil
 }
 
 func (h *Histogram) PrepInit(
@@ -56,25 +50,30 @@ func (h *Histogram) PrepInit(
 	publicShare PublicShare,
 	inputShare InputShare,
 ) (*PrepState, *PrepShare, error) {
-	return h.p.PrepInit(verifyKey, nonce, aggID, publicShare, inputShare)
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }
 
 func (h *Histogram) PrepSharesToPrep(prepShares []PrepShare) (*PrepMessage, error) {
-	return h.p.PrepSharesToPrep(prepShares)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (h *Histogram) PrepNext(state *PrepState, msg *PrepMessage) (*OutShare, error) {
-	return h.p.PrepNext(state, msg)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (h *Histogram) AggregateInit() AggShare { return h.p.AggregateInit() }
+func (h *Histogram) AggregateInit() AggShare { _ = "STUB: not implemented"; return *new(AggShare) }
 
 func (h *Histogram) AggregateUpdate(aggShare *AggShare, outShare *OutShare) {
-	h.p.AggregateUpdate(aggShare, outShare)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (h *Histogram) Unshard(aggShares []AggShare, numMeas uint) (aggregate *[]uint64, err error) {
-	return h.p.Unshard(aggShares, numMeas)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 type flpHistogram struct {
@@ -83,62 +82,24 @@ type flpHistogram struct {
 	chunkLen uint
 }
 
-func newFlpHistogram(length, chunkLen uint) *flpHistogram {
-	h := new(flpHistogram)
-	numGadgetCalls := (length + chunkLen - 1) / chunkLen
-	h.length = length
-	h.chunkLen = chunkLen
-	h.Valid.MeasurementLen = length
-	h.Valid.JointRandLen = numGadgetCalls
-	h.Valid.OutputLen = length
-	h.Valid.EvalOutputLen = 2
-	h.Gadget = flp.GadgetParallelSumInnerMul{Count: chunkLen}
-	h.NumGadgetCalls = numGadgetCalls
-	h.FLP.Eval = h.Eval
-	return h
-}
+func newFlpHistogram(length, chunkLen uint) *flpHistogram { _ = "STUB: not implemented"; return nil }
 
 func (h *flpHistogram) Eval(
 	out Vec, g flp.Gadget[poly, Vec, Fp, *Fp], numCalls uint,
 	meas, jointRand Vec, numShares uint8,
 ) {
-	var invShares Fp
-	invShares.InvUint64(uint64(numShares))
-	out[0] = flp.RangeCheck(g, numCalls, h.chunkLen, &invShares, meas, jointRand)
-
-	sumCheck := &out[1]
-	sumCheck.SubAssign(&invShares)
-	for i := range meas {
-		sumCheck.AddAssign(&meas[i])
-	}
-}
-
-func (h *flpHistogram) Encode(measurement uint64) (out Vec, err error) {
-	if measurement > uint64(h.length) {
-		return nil, flp.ErrMeasurementValue
-	}
-
-	out = arith.NewVec[Vec](h.Valid.MeasurementLen)
-	out[measurement].SetOne()
-
+	_ = "STUB: not implemented"
 	return
 }
 
-func (h *flpHistogram) Truncate(meas Vec) Vec { return meas }
+func (h *flpHistogram) Encode(measurement uint64) (out Vec, err error) {
+	_ = "STUB: not implemented"
+	return *new(Vec), nil
+}
+
+func (h *flpHistogram) Truncate(meas Vec) Vec { _ = "STUB: not implemented"; return *new(Vec) }
 
 func (h *flpHistogram) Decode(output Vec, numMeas uint) (*[]uint64, error) {
-	if len(output) < int(h.Valid.OutputLen) {
-		return nil, flp.ErrOutputLen
-	}
-
-	var err error
-	out := make([]uint64, len(output))
-	for i := range output {
-		out[i], err = output[i].GetUint64()
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return &out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

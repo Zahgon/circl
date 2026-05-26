@@ -5,102 +5,54 @@ package p384
 
 import (
 	"math/big"
-
-	"github.com/cloudflare/circl/internal/conv"
 )
 
 const sizeFp = 48
 
 type fp384 [sizeFp]byte
 
-func (e fp384) BigInt() *big.Int { return conv.BytesLe2BigInt(e[:]) }
-func (e fp384) String() string   { return conv.BytesLe2Hex(e[:]) }
+func (e fp384) BigInt() *big.Int { _ = "STUB: not implemented"; return nil }
+func (e fp384) String() string   { _ = "STUB: not implemented"; return "" }
 
-func (e *fp384) SetBigInt(b *big.Int) {
-	if b.BitLen() > 384 || b.Sign() < 0 {
-		b = new(big.Int).Mod(b, p.BigInt())
-	}
-	conv.BigInt2BytesLe(e[:], b)
-}
+func (e *fp384) SetBigInt(b *big.Int) { _ = "STUB: not implemented"; return }
 
-func montEncode(c, a *fp384) { fp384Mul(c, a, &r2) }
-func montDecode(c, a *fp384) { fp384Mul(c, a, &fp384{1}) }
-func fp384Sqr(c, a *fp384)   { fp384Mul(c, a, a) }
+func montEncode(c, a *fp384) { _ = "STUB: not implemented"; return }
+func montDecode(c, a *fp384) { _ = "STUB: not implemented"; return }
+func fp384Sqr(c, a *fp384)   { _ = "STUB: not implemented"; return }
 
-func fp384Inv(z, x *fp384) {
-	t0, t1, t2, t3, t4 := &fp384{}, &fp384{}, &fp384{}, &fp384{}, &fp384{}
-	/* alpha_1 */
-	fp384Sqr(t4, x)
-	/* alpha_2 */
-	fp384Mul(t4, t4, x)
-	/* alpha_3 */
-	fp384Sqr(t0, t4)
-	fp384Mul(t0, t0, x)
-	/* alpha_6 */
-	fp384Sqr(t1, t0)
-	fp384Sqr(t1, t1)
-	fp384Sqr(t1, t1)
-	fp384Mul(t1, t1, t0)
-	/* alpha_12 */
-	fp384Sqr(t2, t1)
-	for i := 0; i < 5; i++ {
-		fp384Sqr(t2, t2)
-	}
-	fp384Mul(t2, t2, t1)
-	/* alpha_15 */
-	for i := 0; i < 3; i++ {
-		fp384Sqr(t2, t2)
-	}
-	fp384Mul(t2, t2, t0)
-	/* alpha_30 */
-	fp384Sqr(t1, t2)
-	for i := 0; i < 14; i++ {
-		fp384Sqr(t1, t1)
-	}
-	fp384Mul(t1, t1, t2)
-	/* alpha_60 */
-	fp384Sqr(t3, t1)
-	for i := 0; i < 29; i++ {
-		fp384Sqr(t3, t3)
-	}
-	fp384Mul(t3, t3, t1)
-	/* T_3 = alpha_30^(2^2) */
-	fp384Sqr(t1, t1)
-	fp384Sqr(t1, t1)
-	/* alpha_32 */
-	*t0 = *t1
-	fp384Mul(t0, t0, t4)
-	/* T_3 = a^(2^32-3) = (alpha_30)^(2^2)*alpha_1 */
-	fp384Mul(t1, t1, x)
-	/* alpha_120 */
-	fp384Sqr(t4, t3)
-	for i := 0; i < 59; i++ {
-		fp384Sqr(t4, t4)
-	}
-	fp384Mul(t4, t4, t3)
-	/* alpha_240 */
-	fp384Sqr(t3, t4)
-	for i := 0; i < 119; i++ {
-		fp384Sqr(t3, t3)
-	}
-	fp384Mul(t3, t3, t4)
-	/* alpha_255 */
-	for i := 0; i < 15; i++ {
-		fp384Sqr(t3, t3)
-	}
-	fp384Mul(t3, t3, t2)
-	/* T_5 = a^(2^288-2^32-1) = (alpha_255)^(2^33)*alpha_32 */
-	for i := 0; i < 33; i++ {
-		fp384Sqr(t3, t3)
-	}
-	fp384Mul(t3, t3, t0)
-	/* T_1 = a^(2^384-2^128-2^96+2^32-3) = (T_1)^(2^96)*T_3 */
-	fp384Sqr(t4, t3)
-	for i := 0; i < 95; i++ {
-		fp384Sqr(t4, t4)
-	}
-	fp384Mul(z, t4, t1)
-}
+func fp384Inv(z, x *fp384) { _ = "STUB: not implemented"; return }
+
+/* alpha_1 */
+
+/* alpha_2 */
+
+/* alpha_3 */
+
+/* alpha_6 */
+
+/* alpha_12 */
+
+/* alpha_15 */
+
+/* alpha_30 */
+
+/* alpha_60 */
+
+/* T_3 = alpha_30^(2^2) */
+
+/* alpha_32 */
+
+/* T_3 = a^(2^32-3) = (alpha_30)^(2^2)*alpha_1 */
+
+/* alpha_120 */
+
+/* alpha_240 */
+
+/* alpha_255 */
+
+/* T_5 = a^(2^288-2^32-1) = (alpha_255)^(2^33)*alpha_32 */
+
+/* T_1 = a^(2^384-2^128-2^96+2^32-3) = (T_1)^(2^96)*T_3 */
 
 //go:noescape
 func fp384Cmov(x, y *fp384, b int)

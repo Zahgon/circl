@@ -3,13 +3,9 @@
 package fp128
 
 import (
-	"bytes"
-	"crypto/subtle"
-	"encoding/binary"
 	"errors"
 	"io"
 
-	"github.com/cloudflare/circl/internal/conv"
 	"github.com/cloudflare/circl/internal/sha3"
 	"golang.org/x/crypto/cryptobyte"
 )
@@ -20,147 +16,49 @@ const Size = 16
 // Fp represents a prime field element as a positive integer less than Order.
 type Fp [2]uint64
 
-func (z Fp) String() string                  { x := z.fromMont(); return conv.Uint64Le2Hex(x[:]) }
-func (z Fp) Size() uint                      { return Size }
-func (z Fp) OrderRootUnity() uint            { return numRootsUnity }
-func (z *Fp) AddAssign(x *Fp)                { fiatFpAdd(z, z, x) }
-func (z *Fp) SubAssign(x *Fp)                { fiatFpSub(z, z, x) }
-func (z *Fp) MulAssign(x *Fp)                { fiatFpMul(z, z, x) }
-func (z *Fp) Add(x, y *Fp)                   { fiatFpAdd(z, x, y) }
-func (z *Fp) Sub(x, y *Fp)                   { fiatFpSub(z, x, y) }
-func (z *Fp) Mul(x, y *Fp)                   { fiatFpMul(z, x, y) }
-func (z *Fp) Sqr(x *Fp)                      { fiatFpSquare(z, x) }
-func (z *Fp) IsZero() bool                   { return ctEqual(z, &Fp{}) }
-func (z *Fp) IsOne() bool                    { return ctEqual(z, &rootOfUnityTwoN[0]) }
-func (z *Fp) IsEqual(x *Fp) bool             { return ctEqual(z, x) }
-func (z *Fp) SetOne()                        { *z = rootOfUnityTwoN[0] }
-func (z *Fp) toMont()                        { fiatFpMul(z, z, &rSquare) }
-func (z *Fp) fromMont() (out Fp)             { fiatFpMul(&out, z, &Fp{1}); return }
-func (z *Fp) MarshalBinary() ([]byte, error) { return conv.MarshalBinaryLen(z, Size) }
-func (z *Fp) UnmarshalBinary(b []byte) error { return conv.UnmarshalBinary(z, b) }
-func (z *Fp) Marshal(b *cryptobyte.Builder) error {
-	var x [Size]byte
-	for i, zi := range z.fromMont() {
-		binary.LittleEndian.PutUint64(x[8*i:], zi)
-	}
-	b.AddBytes(x[:])
-	return nil
-}
+func (z Fp) String() string                       { _ = "STUB: not implemented"; return "" }
+func (z Fp) Size() uint                           { _ = "STUB: not implemented"; return 0 }
+func (z Fp) OrderRootUnity() uint                 { _ = "STUB: not implemented"; return 0 }
+func (z *Fp) AddAssign(x *Fp)                     { _ = "STUB: not implemented"; return }
+func (z *Fp) SubAssign(x *Fp)                     { _ = "STUB: not implemented"; return }
+func (z *Fp) MulAssign(x *Fp)                     { _ = "STUB: not implemented"; return }
+func (z *Fp) Add(x, y *Fp)                        { _ = "STUB: not implemented"; return }
+func (z *Fp) Sub(x, y *Fp)                        { _ = "STUB: not implemented"; return }
+func (z *Fp) Mul(x, y *Fp)                        { _ = "STUB: not implemented"; return }
+func (z *Fp) Sqr(x *Fp)                           { _ = "STUB: not implemented"; return }
+func (z *Fp) IsZero() bool                        { _ = "STUB: not implemented"; return false }
+func (z *Fp) IsOne() bool                         { _ = "STUB: not implemented"; return false }
+func (z *Fp) IsEqual(x *Fp) bool                  { _ = "STUB: not implemented"; return false }
+func (z *Fp) SetOne()                             { _ = "STUB: not implemented"; return }
+func (z *Fp) toMont()                             { _ = "STUB: not implemented"; return }
+func (z *Fp) fromMont() (out Fp)                  { _ = "STUB: not implemented"; return *new(Fp) }
+func (z *Fp) MarshalBinary() ([]byte, error)      { _ = "STUB: not implemented"; return nil, nil }
+func (z *Fp) UnmarshalBinary(b []byte) error      { _ = "STUB: not implemented"; return nil }
+func (z *Fp) Marshal(b *cryptobyte.Builder) error { _ = "STUB: not implemented"; return nil }
 
-func (z *Fp) Unmarshal(s *cryptobyte.String) bool {
-	var b [Size]byte
-	if s.CopyBytes(b[:]) {
-		n, ok := isInRange(&b)
-		if ok {
-			*z = n
-			z.toMont()
-			return true
-		}
-	}
-	return false
-}
+func (z *Fp) Unmarshal(s *cryptobyte.String) bool { _ = "STUB: not implemented"; return false }
 
-func (z *Fp) Random(r io.Reader) error {
-	var b [Size]byte
-	var ok bool
-	for range maxNumTries {
-		_, err := r.Read(b[:])
-		if err != nil {
-			return err
-		}
+func (z *Fp) Random(r io.Reader) error { _ = "STUB: not implemented"; return nil }
 
-		*z, ok = isInRange(&b)
-		if ok {
-			z.toMont()
-			return nil
-		}
-	}
+func (z *Fp) RandomSHA3(s *sha3.State) error { _ = "STUB: not implemented"; return nil }
 
-	return ErrMaxNumTries
-}
+func (z *Fp) InvUint64(x uint64) { _ = "STUB: not implemented"; return }
 
-func (z *Fp) RandomSHA3(s *sha3.State) error {
-	var b [Size]byte
-	var ok bool
-	for range maxNumTries {
-		_, err := s.Read(b[:])
-		if err != nil {
-			return err
-		}
+func (z *Fp) InvTwoN(n uint) { _ = "STUB: not implemented"; return }
 
-		*z, ok = isInRange(&b)
-		if ok {
-			z.toMont()
-			return nil
-		}
-	}
+func (z *Fp) SetUint64(n uint64) error { _ = "STUB: not implemented"; return nil }
 
-	return ErrMaxNumTries
-}
+func (z *Fp) GetUint64() (uint64, error) { _ = "STUB: not implemented"; return 0, nil }
 
-func (z *Fp) InvUint64(x uint64) {
-	if 0 < x && x <= numInverseInt {
-		*z = inverseInt[x-1]
-	} else {
-		err := z.SetUint64(x)
-		if err != nil {
-			panic(ErrFieldEltDecode)
-		}
-		z.Inv(z)
-	}
-}
+func (z *Fp) SetRootOfUnityTwoN(n uint) { _ = "STUB: not implemented"; return }
 
-func (z *Fp) InvTwoN(n uint) {
-	z.SetOne()
-	for range n {
-		z.Mul(z, &half)
-	}
-}
+func (z Fp) Order() []byte { _ = "STUB: not implemented"; return nil }
 
-func (z *Fp) SetUint64(n uint64) error {
-	*z = Fp{n}
-	z.toMont()
-	return nil
-}
+func (z *Fp) sqri(x *Fp, n uint) { _ = "STUB: not implemented"; return }
 
-func (z *Fp) GetUint64() (uint64, error) {
-	x := z.fromMont()
-	if x[1] != 0 {
-		return 0, ErrNumberTooLarge
-	}
-	return x[0], nil
-}
+func fiatFpCmovznzU64(z *uint64, b, x, y uint64) { _ = "STUB: not implemented"; return }
 
-func (z *Fp) SetRootOfUnityTwoN(n uint) {
-	if n > numRootsUnity {
-		panic(ErrRootsOfUnity)
-	}
-	*z = rootOfUnityTwoN[n]
-}
-
-func (z Fp) Order() []byte {
-	var x [Size]byte
-	binary.Write(bytes.NewBuffer(x[:0]), binary.BigEndian, []uint64{orderP1, orderP0})
-	return x[:]
-}
-
-func (z *Fp) sqri(x *Fp, n uint) {
-	z.Sqr(x)
-	for range n - 1 {
-		z.Sqr(z)
-	}
-}
-
-func fiatFpCmovznzU64(z *uint64, b, x, y uint64) { *z = (x &^ (-b)) | (y & (-b)) }
-
-func ctEqual(x, y *Fp) bool {
-	var v uint64
-	for i := 0; i < len(*x); i++ {
-		v |= (*x)[i] ^ (*y)[i]
-	}
-	v32 := uint32(v>>32) | uint32(v)
-	return subtle.ConstantTimeEq(int32(v32), 0) == 1
-}
+func ctEqual(x, y *Fp) bool { _ = "STUB: not implemented"; return false }
 
 const (
 	// order is the order of the Fp128 field.

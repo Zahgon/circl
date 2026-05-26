@@ -4,23 +4,12 @@ type Interpreter struct {
 	Literal
 }
 
-func (i *Interpreter) Evaluate(expr Expr) Literal {
-	expr.Accept(i)
-	return i.Literal
-}
+func (i *Interpreter) Evaluate(expr Expr) Literal { _ = "STUB: not implemented"; return *new(Literal) }
 
-func (i *Interpreter) visitBinary(b Binary) {
-	i.Literal.Key = b.Output
-}
+func (i *Interpreter) visitBinary(b Binary) { _ = "STUB: not implemented"; return }
 
-func (i *Interpreter) visitUnary(u Unary) {
-	i.Evaluate(u.Right)
-}
+func (i *Interpreter) visitUnary(u Unary) { _ = "STUB: not implemented"; return }
 
-func (i *Interpreter) visitGrouping(g Grouping) {
-	g.Expr.Accept(i)
-}
+func (i *Interpreter) visitGrouping(g Grouping) { _ = "STUB: not implemented"; return }
 
-func (i *Interpreter) visitLiteral(at Literal) {
-	i.Literal = at
-}
+func (i *Interpreter) visitLiteral(at Literal) { _ = "STUB: not implemented"; return }

@@ -4,9 +4,7 @@ package sumvec
 import (
 	"errors"
 
-	"github.com/cloudflare/circl/vdaf/prio3/arith"
 	"github.com/cloudflare/circl/vdaf/prio3/arith/fp128"
-	"github.com/cloudflare/circl/vdaf/prio3/internal/cursor"
 	"github.com/cloudflare/circl/vdaf/prio3/internal/flp"
 	"github.com/cloudflare/circl/vdaf/prio3/internal/prio3"
 )
@@ -34,26 +32,16 @@ type SumVec struct {
 }
 
 func New(numShares uint8, length, bits, chunkLength uint, context []byte) (s *SumVec, err error) {
-	const sumVecID = 3
-	flp, err := newFlpSumVec(length, bits, chunkLength)
-	if err != nil {
-		return nil, err
-	}
-
-	s = new(SumVec)
-	s.p, err = prio3.New(flp, sumVecID, numShares, context)
-	if err != nil {
-		return nil, err
-	}
-
-	return s, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (s *SumVec) Params() prio3.Params { return s.p.Params() }
+func (s *SumVec) Params() prio3.Params { _ = "STUB: not implemented"; return *new(prio3.Params) }
 
 func (s *SumVec) Shard(measurement []uint64, nonce *Nonce, rand []byte,
 ) (PublicShare, []InputShare, error) {
-	return s.p.Shard(measurement, nonce, rand)
+	_ = "STUB: not implemented"
+	return *new(PublicShare), nil, nil
 }
 
 func (s *SumVec) PrepInit(
@@ -63,25 +51,30 @@ func (s *SumVec) PrepInit(
 	publicShare PublicShare,
 	inputShare InputShare,
 ) (*PrepState, *PrepShare, error) {
-	return s.p.PrepInit(verifyKey, nonce, aggID, publicShare, inputShare)
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }
 
 func (s *SumVec) PrepSharesToPrep(prepShares []PrepShare) (*PrepMessage, error) {
-	return s.p.PrepSharesToPrep(prepShares)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (s *SumVec) PrepNext(state *PrepState, msg *PrepMessage) (*OutShare, error) {
-	return s.p.PrepNext(state, msg)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (s *SumVec) AggregateInit() AggShare { return s.p.AggregateInit() }
+func (s *SumVec) AggregateInit() AggShare { _ = "STUB: not implemented"; return *new(AggShare) }
 
 func (s *SumVec) AggregateUpdate(aggShare *AggShare, outShare *OutShare) {
-	s.p.AggregateUpdate(aggShare, outShare)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *SumVec) Unshard(aggShares []AggShare, numMeas uint) (aggregate *[]uint64, err error) {
-	return s.p.Unshard(aggShares, numMeas)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 type flpSumVec struct {
@@ -92,77 +85,28 @@ type flpSumVec struct {
 }
 
 func newFlpSumVec(length, bits, chunkLen uint) (*flpSumVec, error) {
-	if bits > 64 {
-		return nil, ErrBits
-	}
-
-	numGadgetCalls := (length*bits + chunkLen - 1) / chunkLen
-
-	s := new(flpSumVec)
-	s.length = length
-	s.bits = bits
-	s.chunkLen = chunkLen
-	s.Valid.MeasurementLen = length * bits
-	s.Valid.JointRandLen = numGadgetCalls
-	s.Valid.OutputLen = length
-	s.Valid.EvalOutputLen = 1
-	s.Gadget = flp.GadgetParallelSumInnerMul{Count: chunkLen}
-	s.NumGadgetCalls = numGadgetCalls
-	s.FLP.Eval = s.Eval
-	return s, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (s *flpSumVec) Eval(
 	out Vec, g flp.Gadget[poly, Vec, Fp, *Fp], numCalls uint,
 	meas, jointRand Vec, numShares uint8,
 ) {
-	var invShares Fp
-	invShares.InvUint64(uint64(numShares))
-	out[0] = flp.RangeCheck(g, numCalls, s.chunkLen, &invShares, meas, jointRand)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *flpSumVec) Encode(measurement []uint64) (out Vec, err error) {
-	if len(measurement) != int(s.length) {
-		return nil, flp.ErrMeasurementLen
-	}
-
-	out = make(Vec, s.Valid.MeasurementLen)
-	outCur := cursor.New(out)
-	for i := range measurement {
-		err = outCur.Next(s.bits).SplitBits(measurement[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return
+	_ = "STUB: not implemented"
+	return *new(Vec), nil
 }
 
-func (s *flpSumVec) Truncate(meas Vec) (out Vec) {
-	out = arith.NewVec[Vec](s.length)
-	measCur := cursor.New(meas)
-	for i := range out {
-		out[i] = measCur.Next(s.bits).JoinBits()
-	}
-
-	return
-}
+func (s *flpSumVec) Truncate(meas Vec) (out Vec) { _ = "STUB: not implemented"; return *new(Vec) }
 
 func (s *flpSumVec) Decode(output Vec, numMeas uint) (*[]uint64, error) {
-	if len(output) < int(s.Valid.OutputLen) {
-		return nil, flp.ErrOutputLen
-	}
-
-	var err error
-	out := make([]uint64, len(output))
-	for i := range output {
-		out[i], err = output[i].GetUint64()
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return &out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 var ErrBits = errors.New("bits larger than 64 is not supported")

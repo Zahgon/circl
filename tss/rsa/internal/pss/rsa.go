@@ -35,36 +35,8 @@ import (
 )
 
 // incCounter increments a four byte, big-endian counter.
-func incCounter(c *[4]byte) {
-	if c[3]++; c[3] != 0 {
-		return
-	}
-	if c[2]++; c[2] != 0 {
-		return
-	}
-	if c[1]++; c[1] != 0 {
-		return
-	}
-	c[0]++
-}
+func incCounter(c *[4]byte) { _ = "STUB: not implemented"; return }
 
 // mgf1XOR XORs the bytes in out with a mask generated using the MGF1 function
 // specified in PKCS #1 v2.1.
-func mgf1XOR(out []byte, hash hash.Hash, seed []byte) {
-	var counter [4]byte
-	var digest []byte
-
-	done := 0
-	for done < len(out) {
-		hash.Write(seed)
-		hash.Write(counter[0:4])
-		digest = hash.Sum(digest[:0])
-		hash.Reset()
-
-		for i := 0; i < len(digest) && done < len(out); i++ {
-			out[done] ^= digest[i]
-			done++
-		}
-		incCounter(&counter)
-	}
-}
+func mgf1XOR(out []byte, hash hash.Hash, seed []byte) { _ = "STUB: not implemented"; return }

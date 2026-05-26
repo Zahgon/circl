@@ -3,13 +3,7 @@ package cursor
 
 type Cursor[V ~[]E, E any] []E
 
-func New[V ~[]E, E any](x V) Cursor[V, E] { return Cursor[V, E](x) }
+func New[V ~[]E, E any](x V) Cursor[V, E] { _ = "STUB: not implemented"; return nil }
 
 // Next return an slice of size n and advances the pointer.
-func (s *Cursor[V, E]) Next(n uint) (out V) {
-	if uint(len(*s)) >= n {
-		out = V(*s)[:n]
-		*s = (*s)[n:]
-	}
-	return
-}
+func (s *Cursor[V, E]) Next(n uint) (out V) { _ = "STUB: not implemented"; return *new(V) }

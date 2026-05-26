@@ -15,24 +15,13 @@ type BigPublicKey struct {
 }
 
 // Size returns the size of the public key.
-func (pub *BigPublicKey) Size() int {
-	return (pub.N.BitLen() + 7) / 8
-}
+func (pub *BigPublicKey) Size() int { _ = "STUB: not implemented"; return 0 }
 
 // Marshal encodes the public key exponent (e).
-func (pub *BigPublicKey) Marshal() []byte {
-	buf := make([]byte, (pub.E.BitLen()+7)/8)
-	pub.E.FillBytes(buf)
-	return buf
-}
+func (pub *BigPublicKey) Marshal() []byte { _ = "STUB: not implemented"; return nil }
 
 // NewBigPublicKey creates a BigPublicKey from a rsa.PublicKey.
-func NewBigPublicKey(pk *rsa.PublicKey) *BigPublicKey {
-	return &BigPublicKey{
-		N: pk.N,
-		E: new(big.Int).SetInt64(int64(pk.E)),
-	}
-}
+func NewBigPublicKey(pk *rsa.PublicKey) *BigPublicKey { _ = "STUB: not implemented"; return nil }
 
 // CustomPublicKey is similar to rsa.PrivateKey, containing information needed
 // for a private key used in the partially blind signature protocol.
@@ -44,14 +33,4 @@ type BigPrivateKey struct {
 }
 
 // NewBigPrivateKey creates a BigPrivateKey from a rsa.PrivateKey.
-func NewBigPrivateKey(sk *rsa.PrivateKey) *BigPrivateKey {
-	return &BigPrivateKey{
-		Pk: &BigPublicKey{
-			N: sk.N,
-			E: new(big.Int).SetInt64(int64(sk.PublicKey.E)),
-		},
-		D: sk.D,
-		P: sk.Primes[0],
-		Q: sk.Primes[1],
-	}
-}
+func NewBigPrivateKey(sk *rsa.PrivateKey) *BigPrivateKey { _ = "STUB: not implemented"; return nil }
